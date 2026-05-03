@@ -16,4 +16,4 @@ This script downloads the following images if they are not already present:
 
 `resources/containers/deepvariant_1.10.0.sif`
 `resources/containers/vep.sif`
-`resources/containers/bioconductor_3.19.sif`
+`resources/containers/bioconductor_3.21.sif`

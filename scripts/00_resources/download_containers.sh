@@ -13,13 +13,13 @@ mkdir -p "$CONTAINER_DIR"
 
 download_if_missing() {
   local output_file="$1"
-  local image_uri="$2"
+  local image="$2"
 
   if [[ -f "$output_file" ]]; then
     echo "Container already exists, skipping: $output_file"
   else
-    echo "Downloading: $image_uri"
-    apptainer pull "$output_file" "$image_uri"
+    echo "Downloading: $image"
+    apptainer pull "$output_file" "$image"
   fi
 }
 
@@ -32,7 +32,7 @@ download_if_missing \
   "docker://ensemblorg/ensembl-vep"
 
 download_if_missing \
-  "${CONTAINER_DIR}/bioconductor_3.19.sif" \
-  "docker://bioconductor/bioconductor_docker:RELEASE_3_19"
+  "${CONTAINER_DIR}/bioconductor_3.21.sif" \
+  "docker://bioconductor/bioconductor_docker:RELEASE_3_21"
 
 echo "Container download completed."

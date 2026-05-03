@@ -7,13 +7,13 @@
 #   mkdir -p logs/10_methylation_visualization
 #   apptainer exec \
 #     -B "$PWD":"$PWD" \
-#     resources/containers/bioconductor_3.19.sif \
-#     Rscript scripts/10_methylation_visualization/install_nanomethviz_packages.R \
+#     resources/containers/bioconductor_3.21.sif \
+#     Rscript scripts/00_resources/install_nanomethviz_packages.R \
 #     > logs/10_methylation_visualization/install_nanomethviz_packages.log \
 #     2>&1
 
 # Define project-local R library
-r_lib <- "resources/R_libs/nanomethviz_bioc3.19"
+r_lib <- "resources/R_libs/nanomethviz_bioc3.21"
 
 # Create project-local R library if it does not exist
 if (!dir.exists(r_lib)) {
@@ -31,7 +31,9 @@ BiocManager::install(
     "dmrseq",
     "edgeR",
     "limma",
-    "plyranges"
+    "plyranges",
+    "TxDb.Hsapiens.UCSC.hg38.knownGene",
+    "org.Hs.eg.db"
   ),
   ask = FALSE,
   update = FALSE
@@ -44,6 +46,8 @@ library(dmrseq)
 library(edgeR)
 library(limma)
 library(plyranges)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(org.Hs.eg.db)
 
 print(paste("NanoMethViz version:", packageVersion("NanoMethViz")))
 print(paste("bsseq version:", packageVersion("bsseq")))
@@ -51,5 +55,7 @@ print(paste("dmrseq version:", packageVersion("dmrseq")))
 print(paste("edgeR version:", packageVersion("edgeR")))
 print(paste("limma version:", packageVersion("limma")))
 print(paste("plyranges version:", packageVersion("plyranges")))
-
+print(paste("TxDb.Hsapiens.UCSC.hg38.knownGene version:", packageVersion("TxDb.Hsapiens.UCSC.hg38.knownGene")))
+print(paste("org.Hs.eg.db version:", packageVersion("org.Hs.eg.db")))
+cat("\n")
 print("NanoMethViz package installation completed.")
