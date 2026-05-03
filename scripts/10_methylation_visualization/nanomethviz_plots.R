@@ -32,7 +32,7 @@
 #Define local R library path
 R_libs <- "resources/R_libs/nanomethviz_bioc3.21/"
 
-#Add local R library to R libraries path
+#local R library to R libraries path
 .libPaths(c(normalizePath(R_libs), .libPaths()))
 
 #Load required libraries
@@ -123,7 +123,7 @@ for (i in 1:nrow(targets)) {
   #Extract the information of the row
   target_id <- targets$target_id[i]
   target_type <- targets$target_type[i]
-  target <- targets$target[i]
+  symbol <- targets$symbol[i]
 
   #Keep only the target type gene
   if (target_type != "gene") next
@@ -132,14 +132,41 @@ for (i in 1:nrow(targets)) {
   output_pdf <- file.path(output_dir, paste0(target_id, "_", mod_code, "_", "nanomethviz_plot_gene.pdf"))
 
   #Create plot gene
-  gene_plot <- plot_gene(mbr, target)
+  gene_plot <- plot_gene(mbr, symbol)
 
   #Write the plot in the output file
   pdf(output_pdf)
   print(gene_plot)
   dev.off()
 
-  message("[INFO] Plot saved: ", output_pdf)
+  message("[INFO] Gene plot saved: ", output_pdf)
 }
 
+#================Generate Region plot===============
 
+#Iterate throught every row in targets
+for (i in 1:nrow(targets)) {
+
+  #Extract the information of the row
+  target_id <- targets$target_id[i]
+  target_type <- targets$target_type[i]
+  chr <- targets$chr[i]
+  start <- as.integer(targets$start[i])
+  end <- as.integer(targets$end[i])
+
+  #Keep only the target type region
+  if (target_type != "region") next
+
+  #Create output
+  output_pdf <- file.path(output_dir, paste0(target_id, "_", mod_code, "_", "nanomethviz_plot_region.pdf"))
+
+  #Create plot region
+  region_plot <- plot_region(mbr, chr, start, end)
+
+  #Write the plot in the output file
+  pdf(output_pdf)
+  print(region_plot)
+  dev.off()
+
+  message("[INFO] Region plot saved: ", output_pdf)
+}

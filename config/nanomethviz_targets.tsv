@@ -1,4 +1,6 @@
-target_id	target_type	target
-CLTCL1_gene	gene	CLTCL1
-APOL1_gene	gene	APOL1
-MYH9_gene	gene	MYH9
+target_id	target_type	symbol	chr	start	end
+CLTCL1_gene	gene	CLTCL1	NA	NA	NA
+APOL1_gene	gene	APOL1	NA	NA	NA
+MYH9_gene	gene	MYH9	NA	NA	NA
+chr22_36250000-36350000_region	region	NA	chr22	36250000	36350000
+chr22_36280000-36380000_region	region	NA	chr22	36280000	36380000
