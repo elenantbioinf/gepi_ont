@@ -170,3 +170,34 @@ for (i in 1:nrow(targets)) {
 
   message("[INFO] Region plot saved: ", output_pdf)
 }
+
+#================Generate CpG island aggregate plot===============
+
+#Get CpG island annotation for hg38
+cgi_annot <- get_cgi_hg38()
+
+cgi_annot_chr22 <- cgi_annot %>% filter(chr == "chr22")
+
+message("[INFO] Number of hg38 CpG islands: ", nrow(cgi_annot))
+message("[INFO] Number of chr22 CpG islands: ", nrow(cgi_annot_chr22))
+
+#Save CpG island information
+write_tsv(cgi_annot_chr22, file.path(output_dir, "chr22_cpg_islands_used.tsv"))
+
+#Create output
+output_pdf <- file.path(output_dir, paste0("chr22_cpg_islands_", mod_code, "_nanomethviz_aggregate_plot.pdf"))
+
+#Create CpG island aggregate plot
+cgi_plot <- plot_agg_regions(
+  mbr,
+  regions = cgi_annot_chr22,
+  group_col = "group"
+)
+
+#Write the plot in the output file
+pdf(output_pdf)
+print(cgi_plot)
+dev.off()
+
+
+message("[INFO] CpG island aggregate plot saved: ", output_pdf)
