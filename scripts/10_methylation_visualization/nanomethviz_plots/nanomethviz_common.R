@@ -8,6 +8,7 @@
 # - plot_genes.R
 # - plot_regions.R
 # - plot_cpg_island_aggregate.R
+# - plot_promoter_aggregate.R
 
 
 ###############################
@@ -26,6 +27,9 @@ suppressPackageStartupMessages({
   library(dplyr)
   library(readr)
   library(ggplot2)
+  library(GenomicFeatures)
+  library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+  library(tibble)
 })
 
 ###############################
@@ -77,7 +81,7 @@ for (bam_file in bam_files) {
 }
 
 ###############################
-####### EXON ANNOTATION #######
+######### ANNOTATIONS #########
 ###############################
 
 #Creating exon annotation
@@ -85,6 +89,11 @@ exon_annot <- get_exons_hg38()
 
 message("[INFO] Number of exon rows: ", nrow(exon_annot))
 
+#Creating gene annotation
+gene_annot <- exons_to_genes(exon_annot)
+gene_annot_gr <- as(gene_annot, "GRanges")
+
+message("[INFO] Number of gene rows: ", nrow(gene_annot))
 
 ###############################
 ##### NANOMETHVIZ OBJECTS #####
