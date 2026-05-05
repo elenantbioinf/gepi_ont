@@ -1,0 +1,12 @@
+name: visualization
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - methylartist=1.5.3
+  - samtools=1.23.1
+  - htslib=1.23.1
+  - python=3.10
+  - pandas
+  - matplotlib
