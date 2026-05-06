@@ -162,35 +162,66 @@ windows.to_csv(output_tsv, sep="\t", index=False)
 #Convert genomic position to Mb
 x_mb = windows["window_midpoint"] / 1000000
 
-#Create plot
-plt.figure(figsize=(14, 5))
+#Create figure and first axis
+fig, ax1 = plt.subplots(figsize=(14, 5))
 
-plt.plot(
+#Plot mean methylation
+line1, = ax1.plot(
     x_mb,
     windows["mean_methylation"],
-    linewidth=1
+    color="blue",
+    linewidth=1.5,
+    label="Mean methylation"
 )
 
-plt.xlabel(f"Position on {chrom_plot} (Mb)")
-plt.ylabel("Mean methylation (%)")
+ax1.set_xlabel(f"Position on {chrom_plot} (Mb)")
+ax1.set_ylabel("Mean methylation (%)")
+ax1.set_ylim(0, 100)
 
+#Create second axis for coverage
+ax2 = ax1.twinx()
+
+line2, = ax2.plot(
+    x_mb,
+    windows["mean_coverage"],
+    color="orange",
+    linewidth=1.5,
+    linestyle="-",
+    label="Mean coverage"
+)
+
+ax2.set_ylabel("Mean coverage")
+
+#Title
 plt.title(
     f"{sample_name} - {mod_label} methylation across {chrom_plot}\n"
     f"Window size: {window_size} bp"
 )
 
-plt.ylim(0, 100)
+#Grid
+ax1.grid(True, linewidth=0.3, alpha=0.5)
 
-plt.grid(True, linewidth=0.3, alpha=0.5)
-plt.tight_layout()
+#Single combined legend outside the plot
+lines = [line1, line2]
+labels = [line.get_label() for line in lines]
+
+fig.legend(
+    lines,
+    labels,
+    loc="center left",
+    bbox_to_anchor=(0.88, 0.5),
+    frameon=True
+)
+
+#Adjust layout to leave space for legend
+fig.tight_layout(rect=[0, 0, 0.85, 1])
 
 #Save plot
-plt.savefig(output_pdf)
-plt.close()
+plt.savefig(output_pdf, bbox_inches="tight")
 
 #Info messages
 print(f"[INFO] Input bedMethyl: {input_bedmethyl}")
 print(f"[INFO] Chromosome: {chrom_plot}")
 print(f"[INFO] Output table: {output_tsv}")
 print(f"[INFO] Output plot: {output_pdf}")
-print("[FINISHED] Methylation across genome plot completed.")
+print("---[FINISHED]--- Methylation across genome plot completed.")
