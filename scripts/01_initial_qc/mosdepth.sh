@@ -17,7 +17,9 @@ PREFIX="$2"
 
 SAMPLE="$(basename "$BAM" .bam)"
 
-LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/mosdepth"
+QC_LOGS_DIR="${QC_LOGS_DIR:-$INITIAL_QC_LOGS_DIR}"
+
+LOG_DIR="${QC_LOGS_DIR}/${SAMPLE}/mosdepth"
 LOG="${LOG_DIR}/$(basename "$PREFIX")_mosdepth.log"
 
 echo "Creating output directory if it doesn't exist..."

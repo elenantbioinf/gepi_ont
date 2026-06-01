@@ -15,9 +15,11 @@ source "config/project_config.sh"
 BAM="$1"
 OUT="$2"
 
+QC_LOGS_DIR="${QC_LOGS_DIR:-$INITIAL_QC_LOGS_DIR}"
+
 SAMPLE="$(basename "$BAM" .bam)"
 
-LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/samtools"
+LOG_DIR="${QC_LOGS_DIR}/${SAMPLE}/samtools"
 LOG="${LOG_DIR}/$(basename "$OUT" .txt).log"
 
 echo "Creating output directory for flagstat results if it doesn't exist..."

@@ -17,7 +17,9 @@ OUTDIR="$2"
 
 SAMPLE="$(basename "$BAM" .bam)"
 
-LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/nanoplot"
+QC_LOGS_DIR="${QC_LOGS_DIR:-$INITIAL_QC_LOGS_DIR}"
+
+LOG_DIR="${QC_LOGS_DIR}/${SAMPLE}/nanoplot"
 LOG="${LOG_DIR}/${SAMPLE}_nanoplot.log"
 
 echo "Creating output directory if it doesn't exist..."
