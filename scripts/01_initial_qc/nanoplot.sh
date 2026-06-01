@@ -9,11 +9,15 @@
 
 set -euo pipefail
 
+#Load project config
+source "config/project_config.sh"
+
 BAM="$1"
 OUTDIR="$2"
+
 SAMPLE="$(basename "$BAM" .bam)"
 
-LOG_DIR="$(dirname "$OUTDIR" | sed 's|^results/|logs/|')"
+LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/nanoplot"
 LOG="${LOG_DIR}/${SAMPLE}_nanoplot.log"
 
 echo "Creating output directory if it doesn't exist..."

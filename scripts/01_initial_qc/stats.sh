@@ -9,10 +9,15 @@
 
 set -euo pipefail
 
+#Load project config
+source "config/project_config.sh"
+
 BAM="$1"
 OUT="$2"
 
-LOG_DIR="$(dirname "$OUT" | sed 's|^results/|logs/|')"
+SAMPLE="$(basename "$BAM" .bam)"
+
+LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/samtools"
 LOG="${LOG_DIR}/$(basename "$OUT" .txt).log"
 
 echo "Creating output directory for stats results if it doesn't exist..."

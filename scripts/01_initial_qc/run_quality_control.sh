@@ -11,13 +11,14 @@
 
 set -euo pipefail
 
+#Load project config
+source "config/project_config.sh"
+
 BAM="$1"
 
 SAMPLE="$(basename "${BAM}" .bam)"
 
-SCRIPT_DIR="scripts/01_initial_qc"
-
-OUTDIR="results/01_initial_qc/${SAMPLE}"
+OUTDIR="${INITIAL_QC_RESULTS_DIR}/${SAMPLE}"
 
 #Create output directory
 mkdir -p "${OUTDIR}"
@@ -33,7 +34,7 @@ echo "###########################################"
 echo "------------------------------------------"  
 echo "[INFO] Running flagstat analysis"
 
-bash "${SCRIPT_DIR}/flagstat.sh" \
+bash "${INITIAL_QC_SCRIPTS_DIR}/flagstat.sh" \
     "${BAM}" \
     "${OUTDIR}/samtools/${SAMPLE}_flagstat.txt"
 
@@ -43,7 +44,7 @@ echo "[INFO] Flagstat analysis completed."
 echo "------------------------------------------"  
 echo "[INFO] Running stats analysis"
 
-bash "${SCRIPT_DIR}/stats.sh" \
+bash "${INITIAL_QC_SCRIPTS_DIR}/stats.sh" \
     "${BAM}" \
     "${OUTDIR}/samtools/${SAMPLE}_stats.txt"
 
@@ -53,7 +54,7 @@ echo "[INFO] Stats analysis completed."
 echo "------------------------------------------"  
 echo "[INFO] Running mosdepth analysis"
 
-bash "${SCRIPT_DIR}/mosdepth.sh" \
+bash "${INITIAL_QC_SCRIPTS_DIR}/mosdepth.sh" \
     "${BAM}" \
     "${OUTDIR}/mosdepth/${SAMPLE}"
 
@@ -63,7 +64,7 @@ echo "[INFO] Mosdepth analysis completed."
 echo "------------------------------------------"  
 echo "[INFO] Running NanoPlot analysis"
 
-bash "${SCRIPT_DIR}/nanoplot.sh" \
+bash "${INITIAL_QC_SCRIPTS_DIR}/nanoplot.sh" \
     "${BAM}" \
     "${OUTDIR}/nanoplot"
 

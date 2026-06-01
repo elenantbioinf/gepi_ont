@@ -9,10 +9,15 @@
 
 set -euo pipefail
 
+#Load project config
+source "config/project_config.sh"
+
 BAM="$1"
 PREFIX="$2"
 
-LOG_DIR="$(dirname "$PREFIX" | sed 's|^results/|logs/|')"
+SAMPLE="$(basename "$BAM" .bam)"
+
+LOG_DIR="${INITIAL_QC_LOGS_DIR}/${SAMPLE}/mosdepth"
 LOG="${LOG_DIR}/$(basename "$PREFIX")_mosdepth.log"
 
 echo "Creating output directory if it doesn't exist..."
