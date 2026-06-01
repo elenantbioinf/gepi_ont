@@ -2,7 +2,10 @@
 
 # This script runs mosdepth on BAM files
 
-# Use: bash mosdepth.sh <input.bam> <output_prefix>
+#It can be executed directly:
+#   bash mosdepth.sh <input.bam> <output_prefix>
+
+#Or it can be called from run_quality_control.sh.
 
 set -euo pipefail
 

@@ -2,7 +2,10 @@
 
 # This script runs samtools stats on BAM files
 
-# Use: bash stats.sh <input.bam> <output.txt>
+#It can be executed directly:
+#   bash stats.sh <input.bam> <output.txt>
+
+#Or it can be called from run_quality_control.sh.
 
 set -euo pipefail
 
@@ -12,7 +15,7 @@ OUT="$2"
 LOG_DIR="$(dirname "$OUT" | sed 's|^results/|logs/|')"
 LOG="${LOG_DIR}/$(basename "$OUT" .txt).log"
 
-echo "Creating output directory if it doesn't exist..."
+echo "Creating output directory for stats results if it doesn't exist..."
 mkdir -p "$(dirname "$OUT")"
 mkdir -p "$LOG_DIR"
 

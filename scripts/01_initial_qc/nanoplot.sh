@@ -2,7 +2,10 @@
 
 # This script runs nanoplot on BAM files
 
-# Use: bash nanoplot.sh <input.bam> <output_directory> 
+#It can be executed directly:
+#   bash nanoplot.sh <input.bam> <output_directory>
+
+#Or it can be called from run_quality_control.sh.
 
 set -euo pipefail
 

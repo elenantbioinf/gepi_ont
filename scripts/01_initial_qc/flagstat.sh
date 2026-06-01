@@ -2,7 +2,10 @@
 
 # This script runs samtools flagstat on BAM files
 
-# Use: bash flagstat.sh <input.bam> <output.txt> [log_dir]
+#It can be executed directly:
+#   bash flagstat.sh <input.bam> <output.txt> [log_dir]
+
+#Or it can be called from run_quality_control.sh.
 
 set -euo pipefail
 
@@ -12,7 +15,7 @@ OUT="$2"
 LOG_DIR="$(dirname "$OUT" | sed 's|^results/|logs/|')"
 LOG="${LOG_DIR}/$(basename "$OUT" .txt).log"
 
-echo "Creating output directory if it doesn't exist..."
+echo "Creating output directory for flagstat results if it doesn't exist..."
 mkdir -p "$(dirname "$OUT")"
 mkdir -p "$LOG_DIR"
 
