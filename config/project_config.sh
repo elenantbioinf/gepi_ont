@@ -8,6 +8,7 @@
 #Current version: 1.0 (2026-06-01)
 #01_initial_qc
 #02_filtering_and_qc
+#03_bam_comparison
 
 ################################################
 ################ PROJECT PATHS #################
@@ -61,3 +62,15 @@ POST_FILTERING_QC_LOGS_DIR="${LOGS_DIR}/02_filtering_and_qc/post_filtering_qc"
 FILTER_MIN_MAPQ=20
 FILTER_MIN_READ_LENGTH=1000
 FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supplementary alignments
+
+#################################################
+########## MODULE 03: BAM COMPARISON ############
+#################################################
+
+#----------------------Paths---------------------
+#Scripts
+BAM_COMPARISON_SCRIPTS_DIR="${SCRIPTS_DIR}/03_bam_comparison"
+
+#Results
+BAM_COMPARISON_RESULTS_DIR="${RESULTS_DIR}/03_bam_comparison"
+
