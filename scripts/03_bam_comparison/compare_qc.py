@@ -18,17 +18,29 @@ sample_name = sys.argv[1]
 results_dir = sys.argv[2]
 output_dir = sys.argv[3]
 
-#Create outpout directory if it doesn't exist
+#Define samples names and QC directories
+filtered_sample_name = f"{sample_name}_filtered"
+
+raw_qc_dir = f"{results_dir}/01_initial_qc/{sample_name}"
+post_filtering_qc_dir = f"{results_dir}/02_post_filtering_qc/{filtered_sample_name}"
+
+#Create output directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
 
+#Info message of starting QC comparison
+print(f"[INFO] Starting QC comparison for sample: {sample_name}")
+print(f"[INFO] Raw QC directory: {raw_qc_dir}")
+print(f"[INFO] Post-filtering QC directory: {post_filtering_qc_dir}")
+print(f"[INFO] Output directory: {output_dir}")
 
 ###########################
 ### FLAGSTAT COMPARISON ###
 ###########################
 
 #Define paths to flagstat files and output flagstat TSV file
-raw_flagstat = f"{results_dir}/01_initial_qc/samtools/{sample_name}_flagstat.txt"
-filtered_flagstat = f"{results_dir}/02_post_filtering_qc/samtools/{sample_name}_filtered_flagstat.txt"
+raw_flagstat = f"{raw_qc_dir}/samtools/{sample_name}_flagstat.txt"
+filtered_flagstat = f"{post_filtering_qc_dir}/samtools/{filtered_sample_name}_flagstat.txt"
+
 flagstat_output_tsv = f"{output_dir}/{sample_name}_flagstat_comparison.tsv"
 
 #Define a function to extract relevant metrics from flagstat output
@@ -79,8 +91,9 @@ print(f"Flagstat comparison file: {flagstat_output_tsv}")
 ###########################
 
 #Define paths to stats files and output stats TSV file
-raw_stats = f"{results_dir}/01_initial_qc/samtools/{sample_name}_stats.txt"
-filtered_stats = f"{results_dir}/02_post_filtering_qc/samtools/{sample_name}_filtered_stats.txt"
+raw_stats = f"{raw_qc_dir}/samtools/{sample_name}_stats.txt"
+filtered_stats = f"{post_filtering_qc_dir}/samtools/{filtered_sample_name}_stats.txt"
+
 stats_output_tsv = f"{output_dir}/{sample_name}_stats_comparison.tsv"
 
 #Define a function to extract relevant metrics from stats output
@@ -145,8 +158,9 @@ print(f"Stats comparison file: {stats_output_tsv}")
 ###########################
 
 #Define paths to mosdepth summary files and output mosdepth TSV file
-raw_mosdepth_summary = f"{results_dir}/01_initial_qc/mosdepth/{sample_name}.mosdepth.summary.txt"
-filtered_mosdepth_summary = f"{results_dir}/02_post_filtering_qc/mosdepth/{sample_name}_filtered.mosdepth.summary.txt"
+raw_mosdepth_summary = f"{raw_qc_dir}/mosdepth/{sample_name}.mosdepth.summary.txt"
+filtered_mosdepth_summary = f"{post_filtering_qc_dir}/mosdepth/{filtered_sample_name}.mosdepth.summary.txt"
+
 mosdepth_output_tsv = f"{output_dir}/{sample_name}_mosdepth_comparison.tsv"
 
 #Define a function to extract relevant metrics from mosdepth summary output
@@ -200,8 +214,9 @@ print(f"Mosdepth comparison file: {mosdepth_output_tsv}")
 ###########################
 
 #Define paths to NanoStats files and output NanoPlot TSV file
-raw_nanoplot_stats = f"{results_dir}/01_initial_qc/nanoplot/{sample_name}/{sample_name}NanoStats.txt"
-filtered_nanoplot_stats = f"{results_dir}/02_post_filtering_qc/nanoplot/{sample_name}_filtered/{sample_name}_filteredNanoStats.txt"
+raw_nanoplot_stats = f"{raw_qc_dir}/nanoplot/{sample_name}NanoStats.txt"
+filtered_nanoplot_stats = f"{post_filtering_qc_dir}/nanoplot/{filtered_sample_name}NanoStats.txt"
+
 nanoplot_output_tsv = f"{output_dir}/{sample_name}_nanoplot_comparison.tsv"
 
 #Define a function to extract relevant metrics from NanoStats output
