@@ -37,8 +37,8 @@ suppressPackageStartupMessages({
 ###############################
 
 #Define input files
-samples_tsv <- "config/samples.tsv"
-targets_tsv <- "config/nanomethviz_targets.tsv"
+samples_tsv <- "config/visualization_nanomethviz/samples.tsv"
+targets_tsv <- "config/visualization_nanomethviz/nanomethviz_targets.tsv"
 
 #Check if input files exist
 if (!file.exists(samples_tsv)) {
