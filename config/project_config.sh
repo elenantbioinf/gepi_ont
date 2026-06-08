@@ -5,31 +5,83 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 1.0 (2026-06-01)
+#Current version: 1.0 (2026-06-08)
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
 
 ################################################
-################ PROJECT PATHS #################
+############# PIPELINE LOCATION ################
 ################################################
 
+#Config directory and pipeline/project root directory
+
 CONFIG_DIR="$(dirname "$(realpath "${BASH_SOURCE[0]}")")"
-PROJECT_DIR="$(dirname "$CONFIG_DIR")"
+PIPELINE_DIR="$(dirname "$CONFIG_DIR")"
 
-SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 
-RESULTS_DIR="${PROJECT_DIR}/results"
-LOGS_DIR="${PROJECT_DIR}/logs"
+################################################
+########### USER-EDITABLE SETTINGS #############
+################################################
 
-DATA_DIR="${PROJECT_DIR}/data"
-RAW_DATA_DIR="${DATA_DIR}/raw"
+#Directory where this pipeline execution will write all generated files.
+#Local default: WORKDIR="${PIPELINE_DIR}" - write outputs to the pipeline directory.
+#Cluster mode: WORKDIR="/path/to/cluster/workdir" - write outputs to a separate work directory.
+WORKDIR="${PIPELINE_DIR}"
+
+#Directory containing the input BAM files for the pipeline.
+#Local default: RAW_BAM_DIR="${PIPELINE_DIR}/data/raw" - input BAM files are located in the raw data directory of the pipeline.
+#Cluster mode: RAW_BAM_DIR="/comun/DATA/wgs_date" - input BAM files are located in a shared cluster directory.
+RAW_BAM_DIR="${PIPELINE_DIR}/data/raw"
+
+#Directory containing any reference files or resources needed for the pipeline.
+#Local default: RESOURCES_DIR="${PIPELINE_DIR}/resources" - resources are located in the resources directory of the pipeline.
+#Cluster mode: RESOURCES_DIR="/path/to/cluster/resources" - resources are located in a shared cluster directory.
+RESOURCES_DIR="${PIPELINE_DIR}/resources"
+
+#---------------Filtering parameters-------------
+
+FILTER_MIN_MAPQ=20
+FILTER_MIN_READ_LENGTH=1000
+FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supplementary alignments
+
+
+################################################
+############## UNTOUCHABLE SETTINGS ############
+################################################
+#Yes, untouchable.
+
+
+##################### WARNING ##################
+#Everything below this line is part of the internal pipeline structure.
+#These settings are automatically derived from the user-editable section above.
+#Do not modify anything below unless you are intentionally changing the pipeline structure.
+################################################
+
+
+#Do not touch anything below this line without a very good reason.
+#       |   |   |   |   |  
+#       V   V   V   V   V
+
+
+################################################
+#################### PATHS #####################
+################################################
+
+#Scripts directory containing all pipeline scripts (organized by module)
+SCRIPTS_DIR="${PIPELINE_DIR}/scripts"
+
+#Directory containing conda environments for the pipeline (one environment per module)
+CONDA_ENV_DIR="${PIPELINE_DIR}/envs"
+
+#Directories for results, logs and processed data (derived from WORKDIR)
+RESULTS_DIR="${WORKDIR}/results"
+
+LOGS_DIR="${WORKDIR}/logs"
+
+DATA_DIR="${WORKDIR}/data"
+
 PROCESSED_DATA_DIR="${DATA_DIR}/processed"
-
-RESOURCES_DIR="${PROJECT_DIR}/resources"
-
-CONDA_ENV_DIR="${PROJECT_DIR}/envs"
-
 
 ################################################
 ############ MODULE 01: INITIAL QC #############
@@ -39,6 +91,7 @@ INITIAL_QC_SCRIPTS_DIR="${SCRIPTS_DIR}/01_initial_qc"
 
 INITIAL_QC_RESULTS_DIR="${RESULTS_DIR}/01_initial_qc"
 INITIAL_QC_LOGS_DIR="${LOGS_DIR}/01_initial_qc"
+
 
 #################################################
 ######### MODULE 02: FILTERING AND QC ###########
@@ -58,10 +111,6 @@ FILTERING_LOGS_DIR="${LOGS_DIR}/02_filtering_and_qc/filtering"
 POST_FILTERING_QC_RESULTS_DIR="${RESULTS_DIR}/02_post_filtering_qc"
 POST_FILTERING_QC_LOGS_DIR="${LOGS_DIR}/02_filtering_and_qc/post_filtering_qc"
 
-#---------------Filtering parameters-------------
-FILTER_MIN_MAPQ=20
-FILTER_MIN_READ_LENGTH=1000
-FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supplementary alignments
 
 #################################################
 ########## MODULE 03: BAM COMPARISON ############
