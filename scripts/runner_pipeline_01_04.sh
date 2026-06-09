@@ -2,9 +2,10 @@
 
 #This is the runner of the pipeline.
 
-#v.0.2 - Update 2026/06/09
+#v.0.3 - Update 2026/06/10
 
-#Run met_ont pipeline from module 01 to module 04 using a manifest file. 
+#Run met_ont pipeline from module 01 to module 04 using a manifest file.
+#Each module is executed in its corresponding Conda environment.
 
 #These modules include:
 # - 01_initial_qc
@@ -14,7 +15,7 @@
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config
+#Use: bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config.sh
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -130,7 +131,8 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     #Run the runner of QC
-    bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$BAM_PATH" initial
+    conda run -n met_ont_qc \
+        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$BAM_PATH" initial
 
     #===============MODULE 02: FILTERING AND QC===============
     echo ""
@@ -140,7 +142,8 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     #Filtering step
-    bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" "$BAM_PATH"
+    conda run -n bam_processing \
+        bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" "$BAM_PATH"
 
     #Check if filtered BAM and index exists
     FILTERED_BAM="${FILTERED_BAM_DIR}/${SAMPLE_ID}/${SAMPLE_ID}_filtered.bam"
@@ -158,7 +161,8 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     fi
 
     #Post-filtering QC step
-    bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$FILTERED_BAM" post_filtering
+    conda run -n met_ont_qc \
+        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$FILTERED_BAM" post_filtering
 
     #===============MODULE 03: BAM COMPARISON ===============
     echo ""
@@ -167,7 +171,8 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo "-----------------------------------------------------------------------------"
     echo ""
 
-    bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" "$SAMPLE_ID"
+    conda run -n met_ont_qc \
+        bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" "$SAMPLE_ID"
     
     #===============MODULE 04: COVERAGE GAP===============
     echo ""
@@ -176,7 +181,8 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo "-----------------------------------------------------------------------------"
     echo ""
 
-    bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" "$SAMPLE_ID"
+    conda run -n coverage_gap \
+        bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" "$SAMPLE_ID"
     
 done
 
