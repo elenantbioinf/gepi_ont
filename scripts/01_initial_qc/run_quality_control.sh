@@ -22,7 +22,7 @@ if [[ "$#" -ne 2 ]]; then
 fi
 
 #Load project config
-source "config/project_config.sh"
+source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
 #Input arguments
 BAM="$1"

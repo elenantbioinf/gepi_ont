@@ -10,7 +10,7 @@
 set -euo pipefail
 
 #Load project config
-source "config/project_config.sh"
+source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
 BAM_RAW="$1"
 

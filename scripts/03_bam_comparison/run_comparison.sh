@@ -15,7 +15,7 @@ if [[ "$#" -ne 1 ]]; then
 fi
 
 #Load project config
-source "config/project_config.sh"
+source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
 #Input argument
 SAMPLE_NAME="$1"

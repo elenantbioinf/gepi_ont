@@ -80,7 +80,7 @@ echo ""
 
 
 ##################################################
-############# READ THE MANIFEST FILE #############
+################ READ THE MANIFEST ###############
 ##################################################
 
 # Read the manifest line by line, skip the header, and extract SAMPLE_ID and BAM_PATH
@@ -133,7 +133,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     #Run the runner of QC
     bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$BAM_PATH" initial
 
-    #===============MODULE 02: FILTERING===============
+    #===============MODULE 02: FILTERING AND QC===============
     echo ""
     echo "-----------------------------------------------------------------------------"
     echo "[MODULE 02] FILTERING AND QC FOR ${SAMPLE_ID}"
