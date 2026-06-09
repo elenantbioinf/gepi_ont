@@ -5,10 +5,11 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 1.0 (2026-06-08)
+#Current version: 1.1 (2026-06-09)
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
+#04_coverage_gap
 
 ################################################
 ############# PIPELINE LOCATION ################
@@ -45,6 +46,8 @@ FILTER_MIN_MAPQ=20
 FILTER_MIN_READ_LENGTH=1000
 FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supplementary alignments
 
+#---------------Coverage gap thresholds-------------
+COVERAGE_GAP_THRESHOLDS=(0 5)
 
 ################################################
 ############## UNTOUCHABLE SETTINGS ############
@@ -123,3 +126,14 @@ BAM_COMPARISON_SCRIPTS_DIR="${SCRIPTS_DIR}/03_bam_comparison"
 #Results
 BAM_COMPARISON_RESULTS_DIR="${RESULTS_DIR}/03_bam_comparison"
 
+
+#################################################
+########### MODULE 04: COVERAGE GAP #############
+#################################################
+
+#Scripts
+COVERAGE_GAP_SCRIPTS_DIR="${SCRIPTS_DIR}/04_coverage_gap"
+
+#Results and logs
+COVERAGE_GAP_RESULTS_DIR="${RESULTS_DIR}/04_coverage_gap"
+COVERAGE_GAP_LOGS_DIR="${LOGS_DIR}/04_coverage_gap"

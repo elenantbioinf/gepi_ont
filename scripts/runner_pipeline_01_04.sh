@@ -2,18 +2,19 @@
 
 #This is the runner of the pipeline.
 
-#v.0.1 - Update 2026/06/09
+#v.0.2 - Update 2026/06/09
 
-#Run met_ont pipeline from module 01 to module 03 using a manifest file. 
+#Run met_ont pipeline from module 01 to module 04 using a manifest file. 
 
 #These modules include:
 # - 01_initial_qc
 # - 02_filtering_and_qc
 # - 03_bam_comparison
+# - 04_coverage_gap
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_03.sh path/to/manifest.tsv path/to/config
+#Use: bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -23,10 +24,8 @@ set -euo pipefail
 
 #Check input arguments
 if [[ "$#" -ne 2 ]]; then
-    echo "[ERROR] Usage:  path/to/manifest.tsv"
-    echo "[ERROR] bash scripts/runner_pipeline_01_03.sh \ "
-    echo "path/to/manifest.tsv \ "
-    echo "path/to/config.sh"
+    echo "[ERROR] Usage:"
+    echo "[ERROR] bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config.sh"
     echo "[ERROR] Please, include both the manifest file and the config file as arguments"
     exit 1
 fi
@@ -164,12 +163,21 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     #===============MODULE 03: BAM COMPARISON ===============
     echo ""
     echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 03] COMPARISON OF QC BEFORE AND AFTER FILTERING ${SAMPLE_ID}"
+    echo "[MODULE 03] COMPARISON OF QC BEFORE AND AFTER FILTERING FOR ${SAMPLE_ID}"
     echo "-----------------------------------------------------------------------------"
     echo ""
 
     bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" "$SAMPLE_ID"
+    
+    #===============MODULE 04: COVERAGE GAP===============
+    echo ""
+    echo "-----------------------------------------------------------------------------"
+    echo "[MODULE 04] COVERAGE GAP ANALYSIS FOR ${SAMPLE_ID}"
+    echo "-----------------------------------------------------------------------------"
+    echo ""
 
+    bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" "$SAMPLE_ID"
+    
 done
 
 #Final messages
@@ -178,6 +186,6 @@ echo "==========================================================================
 echo "                             PIPELINE FINISHED"
 echo "============================================================================="
 echo ""
-echo "[INFO] Modules 01 to 03 completed for all samples in:"
+echo "[INFO] Modules 01 to 04 completed for all samples in:"
 echo "[INFO] ${MANIFEST}"
 echo ""
