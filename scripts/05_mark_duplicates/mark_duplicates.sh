@@ -6,27 +6,64 @@
 
 set -euo pipefail
 
+#Check arguments
+if [[ $# -ne 1 ]]; then
+    echo "[ERROR] Missing arguments."
+    echo "[ERROR] Usage: bash scripts/05_mark_duplicates/mark_duplicates.sh <input_bam>"
+    exit 1
+fi
+
+#Load project config
+source "${MET_ONT_CONFIG:-config/project_config.sh}"
+
+#Input argument
 INPUT_BAM="$1"
+
+#Chekc if input BAM exists
+if [[ ! -f "${INPUT_BAM}" ]]; then
+    echo "[ERROR] Input BAM not found:"
+    echo "[ERROR] ${INPUT_BAM}"
+    echo "[ERROR] Please, run the filtering of BAM raw before this step"
+    exit 1
+fi
+
+#Sample name
 SAMPLE="$(basename "$INPUT_BAM" .bam)"
-OUTPUT_BAM="results/05_mark_duplicates/${SAMPLE}/${SAMPLE}_markdup.bam"
-METRICS_FILE="results/05_mark_duplicates/${SAMPLE}/${SAMPLE}_markdup_metrics.txt"
-LOG="logs/05_mark_duplicates/${SAMPLE}_mark_duplicates.log"
+
+#Define results
+MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${SAMPLE}"
+MARKDUP_BAM="${MARKDUP_DIR}/${SAMPLE}_markdup.bam"
+MARKDUP_METRICS="${MARKDUP_DIR}/${SAMPLE}_markdup_metrics.txt"
+
+#Define logs
+LOGS_DIR="${MARK_DUPLICATES_LOGS_DIR}/${SAMPLE}"
+LOGS_FILE="${LOGS_DIR}/${SAMPLE}_markdup.log"
+
+
+#Info messages
+echo "###########################################"
+echo "Running duplicate marking for sample: ${SAMPLE}"
+echo "Input BAM: ${INPUT_BAM}"
+echo "###########################################"
 
 echo "Creating output directory for BAM files with duplicates marked if it doesn't exist..."
-mkdir -p results/05_mark_duplicates/${SAMPLE}
-mkdir -p logs/05_mark_duplicates
+mkdir -p "${MARKDUP_DIR}"
+mkdir -p "${LOGS_DIR}"
 
 echo "Marking duplicates in $INPUT_BAM..."
 picard MarkDuplicates \
     I="$INPUT_BAM" \
-    O="$OUTPUT_BAM" \
-    M="$METRICS_FILE" \
+    O="$MARKDUP_BAM" \
+    M="$MARKDUP_METRICS" \
     CREATE_INDEX=true \
     VALIDATION_STRINGENCY=LENIENT \
-    >> "$LOG" 2>&1
+    > "${LOGS_FILE}" 2>&1
 
+echo "###########################################"
 echo "Duplicates marked successfully"
-echo "Output saved to $OUTPUT_BAM"
-echo "Metrics saved to $METRICS_FILE"
-echo "Index created: $OUTPUT_BAM.bai"
+echo "Output saved to $MARKDUP_BAM"
+echo "Metrics saved to $MARKDUP_METRICS"
+echo "Index created: $MARKDUP_BAM.bai"
+echo "Log saved to $LOGS_FILE"
+echo "###########################################"
 

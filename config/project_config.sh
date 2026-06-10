@@ -10,6 +10,7 @@
 #02_filtering_and_qc
 #03_bam_comparison
 #04_coverage_gap
+#05_mark_duplicates
 
 ################################################
 ############# PIPELINE LOCATION ################
@@ -90,8 +91,10 @@ PROCESSED_DATA_DIR="${DATA_DIR}/processed"
 ############ MODULE 01: INITIAL QC #############
 ################################################
 
+#Scripts
 INITIAL_QC_SCRIPTS_DIR="${SCRIPTS_DIR}/01_initial_qc"
 
+#Results and logs
 INITIAL_QC_RESULTS_DIR="${RESULTS_DIR}/01_initial_qc"
 INITIAL_QC_LOGS_DIR="${LOGS_DIR}/01_initial_qc"
 
@@ -100,7 +103,6 @@ INITIAL_QC_LOGS_DIR="${LOGS_DIR}/01_initial_qc"
 ######### MODULE 02: FILTERING AND QC ###########
 #################################################
 
-#----------------------Paths---------------------
 #Scripts
 FILTERING_AND_QC_SCRIPTS_DIR="${SCRIPTS_DIR}/02_filtering_and_qc"
 
@@ -119,7 +121,6 @@ POST_FILTERING_QC_LOGS_DIR="${LOGS_DIR}/02_filtering_and_qc/post_filtering_qc"
 ########## MODULE 03: BAM COMPARISON ############
 #################################################
 
-#----------------------Paths---------------------
 #Scripts
 BAM_COMPARISON_SCRIPTS_DIR="${SCRIPTS_DIR}/03_bam_comparison"
 
@@ -137,3 +138,15 @@ COVERAGE_GAP_SCRIPTS_DIR="${SCRIPTS_DIR}/04_coverage_gap"
 #Results and logs
 COVERAGE_GAP_RESULTS_DIR="${RESULTS_DIR}/04_coverage_gap"
 COVERAGE_GAP_LOGS_DIR="${LOGS_DIR}/04_coverage_gap"
+
+
+#################################################
+########## MODULE 05: MARK DUPLICATES ###########
+#################################################
+
+#Scripts
+MARK_DUPLICATES_SCRIPTS_DIR="${SCRIPTS_DIR}/05_mark_duplicates"
+
+#Results and logs
+MARK_DUPLICATES_RESULTS_DIR="${RESULTS_DIR}/05_mark_duplicates"
+MARK_DUPLICATES_LOGS_DIR="${LOGS_DIR}/05_mark_duplicates"

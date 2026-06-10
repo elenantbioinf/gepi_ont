@@ -2,9 +2,9 @@
 
 #This is the runner of the pipeline.
 
-#v.0.3 - Update 2026/06/10
+#v.0.4 - Update 2026/06/10
 
-#Run met_ont pipeline from module 01 to module 04 using a manifest file.
+#Run met_ont pipeline from module 01 to module 05 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
 
 #These modules include:
@@ -12,10 +12,11 @@
 # - 02_filtering_and_qc
 # - 03_bam_comparison
 # - 04_coverage_gap
+# - 05_mark_duplicates
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config.sh
+#Use: bash scripts/runner_pipeline_01_05.sh path/to/manifest.tsv path/to/config.sh
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -26,7 +27,7 @@ set -euo pipefail
 #Check input arguments
 if [[ "$#" -ne 2 ]]; then
     echo "[ERROR] Usage:"
-    echo "[ERROR] bash scripts/runner_pipeline_01_04.sh path/to/manifest.tsv path/to/config.sh"
+    echo "[ERROR] bash scripts/runner_pipeline_01_05.sh path/to/manifest.tsv path/to/config.sh"
     echo "[ERROR] Please, include both the manifest file and the config file as arguments"
     exit 1
 fi
@@ -184,6 +185,15 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     conda run -n coverage_gap \
         bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" "$SAMPLE_ID"
     
+    #===============MODULE 05: MARK DUPLICATES===============
+    echo ""
+    echo "-----------------------------------------------------------------------------"
+    echo "[MODULE 05] MARK DUPLICATES FOR ${SAMPLE_ID}"
+    echo "-----------------------------------------------------------------------------"
+    echo ""
+
+    conda run -n mark_duplicates \
+        bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" "$FILTERED_BAM"
 done
 
 #Final messages
@@ -192,6 +202,6 @@ echo "==========================================================================
 echo "                             PIPELINE FINISHED"
 echo "============================================================================="
 echo ""
-echo "[INFO] Modules 01 to 04 completed for all samples in:"
+echo "[INFO] Modules 01 to 05 completed for all samples in:"
 echo "[INFO] ${MANIFEST}"
 echo ""
