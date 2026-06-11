@@ -7,29 +7,64 @@
 #  - mosdepth.sh
 #  - nanoplot.sh
 
-#Use: bash run_quality_control.sh <input.bam> <analysis_mode>
+#Use: bash run_quality_control.sh -i <input.bam> -m <analysis_mode>
 #analysis_mode options are:
 #   -"initial"
 #   -"post_filtering"
 
 set -euo pipefail
 
-#Check arguments
-if [[ "$#" -ne 2 ]]; then
-    echo "[ERROR] Usage: bash run_quality_control.sh <input.bam> <analysis_mode>"
-    echo "[ERROR] analysis_mode options: 'initial' or 'post_filtering'"
+#Initialize variables to avoid errors with set -u
+INPUT_BAM=""
+QC_MODE=""
+
+#Define usage of the script
+usage () {
+    echo "scripts/01_initial_qc/run_quality_control.sh"
+    echo ""
+    echo "Usage: bash $0 -i <input.bam> -m <analysis_mode>"
+    echo ""
+    echo "Description:"
+    echo "  Run the complete quality control analysis for one BAM file."
+    echo ""
+    echo "Options:"
+    echo "  -i  Input BAM file"
+    echo "  -m  QC analysis mode: initial or post_filtering"
+    echo "  -h  Display this help message and exit."
+}
+
+#Parse command-line options
+while getopts ":i:m:h" opt; do
+    case ${opt} in
+        i ) INPUT_BAM="$OPTARG" ;;
+        m ) QC_MODE="$OPTARG" ;;
+        h ) usage
+            exit 0 ;;
+        \? )
+            echo "[ERROR] Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        : )
+            echo "[ERROR] Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+#Check if options are provided
+if [[ -z "$INPUT_BAM" || -z "$QC_MODE" ]]; then
+    echo "[ERROR] Missing required arguments." >&2
+    usage
     exit 1
 fi
 
 #Load project config
 source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
-#Input arguments
-BAM="$1"
-QC_MODE="$2"
-
 #Get sample name from BAM file
-SAMPLE="$(basename "${BAM}" .bam)"
+SAMPLE="$(basename "${INPUT_BAM}" .bam)"
 
 #Select output directory based on QC mode
 
@@ -62,7 +97,7 @@ mkdir -p "${OUTDIR}"
 #Info messages
 echo "###########################################"
 echo "Running quality control for sample: ${SAMPLE}"
-echo "Input BAM: ${BAM}"
+echo "Input BAM: ${INPUT_BAM}"
 echo "QC mode: ${QC_MODE}"
 echo "###########################################"
 
@@ -71,8 +106,8 @@ echo "------------------------------------------"
 echo "[INFO] Running flagstat analysis"
 
 bash "${INITIAL_QC_SCRIPTS_DIR}/flagstat.sh" \
-    "${BAM}" \
-    "${OUTDIR}/samtools/${SAMPLE}_flagstat.txt"
+    -i "${INPUT_BAM}" \
+    -o "${OUTDIR}/samtools/${SAMPLE}_flagstat.txt"
 
 echo "[INFO] Flagstat analysis completed."
 
@@ -81,8 +116,8 @@ echo "------------------------------------------"
 echo "[INFO] Running stats analysis"
 
 bash "${INITIAL_QC_SCRIPTS_DIR}/stats.sh" \
-    "${BAM}" \
-    "${OUTDIR}/samtools/${SAMPLE}_stats.txt"
+    -i "${INPUT_BAM}" \
+    -o "${OUTDIR}/samtools/${SAMPLE}_stats.txt"
 
 echo "[INFO] Stats analysis completed."
 
@@ -91,8 +126,8 @@ echo "------------------------------------------"
 echo "[INFO] Running mosdepth analysis"
 
 bash "${INITIAL_QC_SCRIPTS_DIR}/mosdepth.sh" \
-    "${BAM}" \
-    "${OUTDIR}/mosdepth/${SAMPLE}"
+    -i "${INPUT_BAM}" \
+    -p "${OUTDIR}/mosdepth/${SAMPLE}"
 
 echo "[INFO] Mosdepth analysis completed."
 
@@ -101,8 +136,8 @@ echo "------------------------------------------"
 echo "[INFO] Running NanoPlot analysis"
 
 bash "${INITIAL_QC_SCRIPTS_DIR}/nanoplot.sh" \
-    "${BAM}" \
-    "${OUTDIR}/nanoplot"
+    -i "${INPUT_BAM}" \
+    -o "${OUTDIR}/nanoplot"
 
 echo "[INFO] NanoPlot analysis completed."
 

@@ -109,7 +109,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     fi
 
     #Check that $SAMPLE_ID and BAM name matches
-    #This is for evitate errors like sample_id = paciente01 and bam_path = muestra1.bam
+    #This is for avoid errors like sample_id = paciente01 and bam_path = muestra1.bam
     BAM_BASENAME="$(basename "$BAM_PATH" .bam)"
 
     if [[ "$SAMPLE_ID" != "$BAM_BASENAME" ]]; then
@@ -131,9 +131,9 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo "-----------------------------------------------------------------------------"
     echo ""
 
-    #Run the runner of QC
+    #Initial QC
     conda run -n met_ont_qc \
-        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$BAM_PATH" initial
+        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$BAM_PATH" -m initial
 
     #===============MODULE 02: FILTERING AND QC===============
     echo ""
@@ -163,7 +163,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
 
     #Post-filtering QC step
     conda run -n met_ont_qc \
-        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" "$FILTERED_BAM" post_filtering
+        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$FILTERED_BAM" -m post_filtering
 
     #===============MODULE 03: BAM COMPARISON ===============
     echo ""
