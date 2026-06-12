@@ -5,15 +5,57 @@
 # - keeps only alignments with MAPQ >= FILTER_MIN_MAPQ
 # - keeps only reads with sequence length >= FILTER_MIN_READ_LENGTH
 
-# Use: bash filter_bam.sh <input.bam>
+# Use: bash filter_bam.sh -i <input.bam>
 
 set -euo pipefail
+
+#Inizializate variables for avoiding errors with set -u
+BAM_RAW=""
+
+#Define usage of the script
+usage () {
+    echo "scripts/02_filtering_and_qc/filter_bam.sh"
+    echo ""
+    echo "Usage: bash $0 -i <input.bam>"
+    echo ""
+    echo "Description:"
+    echo "  Filter a BAM file using parameters defined in config file"
+    echo ""
+    echo "Options:"
+    echo "  -i  Input BAM file"
+    echo "  -h  Display this help message and exit"
+}
+
+#Parse command-line options
+while getopts ":i:h" opt; do
+    case ${opt} in
+        i ) BAM_RAW="$OPTARG" ;;
+        h ) usage
+            exit 0 ;;
+        \? )
+            echo "[ERROR] Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        : )
+            echo "[ERROR] Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+#Check if options are provided
+if [[ -z "$BAM_RAW" ]]; then
+    echo "[ERROR] Missing required arguments." >&2
+    usage
+    exit 1
+fi
 
 #Load project config
 source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
-BAM_RAW="$1"
-
+#Define other variables
 SAMPLE="$(basename "${BAM_RAW}" .bam)"
 
 BAM_FILTERED="${FILTERED_BAM_DIR}/${SAMPLE}/${SAMPLE}_filtered.bam"

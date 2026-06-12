@@ -144,7 +144,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
 
     #Filtering step
     conda run -n bam_processing \
-        bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" "$BAM_PATH"
+        bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" -i "$BAM_PATH"
 
     #Check if filtered BAM and index exists
     FILTERED_BAM="${FILTERED_BAM_DIR}/${SAMPLE_ID}/${SAMPLE_ID}_filtered.bam"
