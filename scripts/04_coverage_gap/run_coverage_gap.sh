@@ -3,25 +3,70 @@
 #This script runs coverage gaps detection. 
 #It uses mosdepth per-base BED.GZ file generating during post-filtering QC
 
-#Use: bash scripts/04_coverage_gap/run_coverage_gap.sh <sample_id>
+#Use: bash scripts/04_coverage_gap/run_coverage_gap.sh -s <sample_id> [-t <threshold>]
 
 set -euo pipefail
 
-#Check arguments
-if [[ "$#" -ne 1 ]]; then
-    echo "[ERROR] Missing arguments."
-    echo "[ERROR] Usage: bash scripts/04_coverage_gap/run_coverage_gap.sh <sample_id>"
+#Inizializate variables for avoiding errors with set -u
+SAMPLE_NAME=""
+SELECTED_THRESHOLD=""
+
+#Define usage of the script
+usage () {
+    echo "scripts/04_coverage_gap/run_coverage_gap.sh"
+    echo ""
+    echo "Usage: bash $0 -s <sample_name> [-t <threshold>]"
+    echo ""
+    echo "Description:"
+    echo "  Run coverage gap detection using mosdepth per-base BED.GZ from post-filtering QC"
+    echo ""
+    echo "Options:"
+    echo "  -s  Sample ID"
+    echo "  -t  Coverage threshold to run. If not provided, thresholds from project_config.sh are used"
+    echo "  -h  Display this help message and exit"
+}
+
+#Parse command-line options
+while getopts ":s:t:h" opt; do
+    case ${opt} in
+        s ) SAMPLE_NAME="$OPTARG" ;;
+        t ) SELECTED_THRESHOLD="$OPTARG" ;;
+        h ) usage
+            exit 0 ;;
+        \? )
+            echo "[ERROR] Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        : )
+            echo "[ERROR] Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+#Check if required options are provided
+#Only required SAMPLE_NAME, if SELECTED_THRESHOLD is not provided, the script will use the
+#thresholds from the configfile
+if [[ -z "$SAMPLE_NAME" ]]; then
+    echo "[ERROR] Missing required arguments." >&2
+    usage
     exit 1
 fi
 
 #Load project config
 source "${MET_ONT_CONFIG:-config/project_config.sh}"
 
-#Input argument
-SAMPLE_ID="$1"
+#Define thresholds to run
+if [[ -n "$SELECTED_THRESHOLD" ]]; then
+    THRESHOLDS_TO_RUN=("$SELECTED_THRESHOLD")
+else
+    THRESHOLDS_TO_RUN=("${COVERAGE_GAP_THRESHOLDS[@]}")
+fi
 
 #Filtered sample name
-FILTERED_SAMPLE="${SAMPLE_ID}_filtered"
+FILTERED_SAMPLE="${SAMPLE_NAME}_filtered"
 
 #Input mosdepth per-base.bed.gz from post-filtering QC
 PER_BASE_BED="${POST_FILTERING_QC_RESULTS_DIR}/${FILTERED_SAMPLE}/mosdepth/${FILTERED_SAMPLE}.per-base.bed.gz"
@@ -35,21 +80,21 @@ if [[ ! -f "${PER_BASE_BED}" ]]; then
 fi
 
 #Logs directory
-SAMPLE_LOGS_DIR="${COVERAGE_GAP_LOGS_DIR}/${SAMPLE_ID}"
+SAMPLE_LOGS_DIR="${COVERAGE_GAP_LOGS_DIR}/${SAMPLE_NAME}"
 mkdir -p "$SAMPLE_LOGS_DIR"
 
 #Info messages
 echo "###########################################"
 echo "Running coverage gap analysis for sample: ${FILTERED_SAMPLE}"
 echo "Input BED file: ${PER_BASE_BED}"
-echo "Thresholds: ${COVERAGE_GAP_THRESHOLDS[*]}"
+echo "Thresholds: ${THRESHOLDS_TO_RUN[*]}"
 echo "###########################################"
 
 #Define results dir for each sample
-SAMPLE_RESULTS_DIR="${COVERAGE_GAP_RESULTS_DIR}/${SAMPLE_ID}"
+SAMPLE_RESULTS_DIR="${COVERAGE_GAP_RESULTS_DIR}/${SAMPLE_NAME}"
 
 #Run coverage gap detection for each threshold
-for THRESHOLD in "${COVERAGE_GAP_THRESHOLDS[@]}"; do
+for THRESHOLD in "${THRESHOLDS_TO_RUN[@]}"; do
 
     #Define threshold dir for each threshold
     THRESHOLD_DIR="${SAMPLE_RESULTS_DIR}/threshold_${THRESHOLD}"

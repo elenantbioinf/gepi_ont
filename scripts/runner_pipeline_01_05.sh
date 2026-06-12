@@ -183,7 +183,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     conda run -n coverage_gap \
-        bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" "$SAMPLE_ID"
+        bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" -s "$SAMPLE_ID"
     
     #===============MODULE 05: MARK DUPLICATES===============
     echo ""
