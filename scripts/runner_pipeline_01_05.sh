@@ -173,7 +173,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     conda run -n met_ont_qc \
-        bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" "$SAMPLE_ID"
+        bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" -s "$SAMPLE_ID"
     
     #===============MODULE 04: COVERAGE GAP===============
     echo ""
