@@ -193,7 +193,33 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     conda run -n mark_duplicates \
-        bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" "$FILTERED_BAM"
+        bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" -i "$FILTERED_BAM"
+
+    #Check if markdup BAM and index exists
+    FILTERED_SAMPLE="$(basename "$FILTERED_BAM" .bam)"
+    MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${FILTERED_SAMPLE}"
+    MARKDUP_BAM="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bam"
+    MARKDUP_BAI="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bai"
+    MARKDUP_METRICS="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup_metrics.txt"
+
+    if [[ ! -f "$MARKDUP_BAM" ]]; then
+        echo "[ERROR] MarkDuplicates BAM was not created:"
+        echo "[ERROR] ${MARKDUP_BAM}"
+        exit 1
+    fi
+
+    if [[ ! -f "$MARKDUP_BAI" ]]; then
+        echo "[ERROR] MarkDuplicates BAM index was not created:"
+        echo "[ERROR] ${MARKDUP_BAI}"
+        exit 1
+    fi    
+
+    if [[ ! -f "$MARKDUP_METRICS" ]]; then
+        echo "[ERROR] MarkDuplicates metrics file was not created:"
+        echo "[ERROR] ${MARKDUP_METRICS}"
+        exit 1
+    fi
+
 done
 
 #Final messages

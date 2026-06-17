@@ -2,22 +2,55 @@
 
 # This script marks duplicates in aligned BAM files using Picard MarkDuplicates.
 
-# Use: bash mark_duplicates.sh <input_bam>
+# Use: bash mark_duplicates.sh -i <input_bam>
 
 set -euo pipefail
 
-#Check arguments
-if [[ $# -ne 1 ]]; then
-    echo "[ERROR] Missing arguments."
-    echo "[ERROR] Usage: bash scripts/05_mark_duplicates/mark_duplicates.sh <input_bam>"
+#Inizializate variables to avoid error with set -u
+INPUT_BAM=""
+
+#Define usage of the script
+usage () {
+    echo "scripts/05_mark_duplicates/mark_duplicates.sh"
+    echo ""
+    echo "Usage: bash $0 -i <input.bam>"
+    echo ""
+    echo "Description:"
+    echo "  Mark duplicates in a BAM file using Picard"
+    echo ""
+    echo "Options:"
+    echo "  -i  Input BAM file"
+    echo "  -h  Display this help message and exit"
+}
+
+#Parse command-line options
+while getopts ":i:h" opt; do
+    case ${opt} in
+        i ) INPUT_BAM="$OPTARG" ;;
+        h ) usage
+            exit 0 ;;
+        \? )
+            echo "[ERROR] Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        : )
+            echo "[ERROR] Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+#Check if required options are provided
+if [[ -z "$INPUT_BAM" ]]; then
+    echo "[ERROR] Missing required arguments." >&2
+    usage
     exit 1
 fi
 
 #Load project config
 source "${MET_ONT_CONFIG:-config/project_config.sh}"
-
-#Input argument
-INPUT_BAM="$1"
 
 #Chekc if input BAM exists
 if [[ ! -f "${INPUT_BAM}" ]]; then
