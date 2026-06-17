@@ -54,6 +54,16 @@ source "$CONFIG"
 #Export config path for internal scripts
 export MET_ONT_CONFIG="$CONFIG"
 
+#Create execution log
+PIPELINE_EXECUTION_LOGS_DIR="${LOGS_DIR}/pipeline_executions"
+
+mkdir -p "$PIPELINE_EXECUTION_LOGS_DIR"
+
+PIPELINE_EXECUTION_LOG="${PIPELINE_EXECUTION_LOGS_DIR}/execution_$(date +%Y%m%d_%H%M%S).log"
+
+#Redirect all pipeline execution output to both terminal and execution log
+exec > >(tee -a "$PIPELINE_EXECUTION_LOG") 2>&1
+
 #Initial info messages
 echo ""
 echo "============================================================================="
@@ -76,7 +86,9 @@ echo "[INFO] Pipeline directory: ${PIPELINE_DIR}"
 echo "[INFO] Working directory: ${WORKDIR}"
 echo "[INFO] Results directory: ${RESULTS_DIR}"
 echo "[INFO] Logs directory: ${LOGS_DIR}"
+echo "[INFO] Pipeline execution log: ${PIPELINE_EXECUTION_LOG}"
 echo "[INFO] Processed BAM directory: ${PROCESSED_DATA_DIR}"
+echo "[INFO] Execution: $(date +%Y%m%d_%H%M%S)"
 echo ""
 
 
