@@ -2,7 +2,7 @@
 
 #This is the runner of the pipeline.
 
-#v.0.4 - Update 2026/06/10
+#v.0.5 - Update 2026/06/17
 
 #Run met_ont pipeline from module 01 to module 05 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
@@ -64,22 +64,28 @@ PIPELINE_EXECUTION_LOG="${PIPELINE_EXECUTION_LOGS_DIR}/execution_$(date +%Y%m%d_
 #Redirect all pipeline execution output to both terminal and execution log
 exec > >(tee -a "$PIPELINE_EXECUTION_LOG") 2>&1
 
+#Terminal colors
+CYAN="\033[1;36m"
+MAGENTA="\033[1;35m"
+YELLOW="\033[0;33m"
+RESET="\033[0m"
+
 #Initial info messages
-echo ""
+echo -e "${YELLOW}"
 echo "============================================================================="
 echo "============================================================================="
-echo ""
+echo -e "${MAGENTA}"
 echo "      MMMM   MMMM  EEEEEEE  TTTTTTTT        OOOOOOO  NNN    NN  TTTTTTTT"
 echo "      MM MM MM MM  EE          TT           OO   OO  NN N   NN     TT   "
 echo "      MM   M   MM  EEEEE       TT    =====  OO   OO  NN  N  NN     TT   "
 echo "      MM       MM  EE          TT           OO   OO  NN   N NN     TT   "
 echo "      MM       MM  EEEEEEE     TT           OOOOOOO  NN    NNN     TT   "
-echo ""
+echo -e "${YELLOW}"
 echo "A modular and reproducible bioinformatics pipeline for ONT long-read BAM data"
 echo ""
 echo "============================================================================="
 echo "============================================================================="
-echo ""
+echo -e "${CYAN}"
 echo "[INFO] Manifest: ${MANIFEST}"
 echo "[INFO] Config: ${CONFIG}"
 echo "[INFO] Pipeline directory: ${PIPELINE_DIR}"
@@ -90,7 +96,7 @@ echo "[INFO] Pipeline execution log: ${PIPELINE_EXECUTION_LOG}"
 echo "[INFO] Processed BAM directory: ${PROCESSED_DATA_DIR}"
 echo "[INFO] Execution: $(date +%Y%m%d_%H%M%S)"
 echo ""
-
+echo -e "${RESET}"
 
 ##################################################
 ################ READ THE MANIFEST ###############
