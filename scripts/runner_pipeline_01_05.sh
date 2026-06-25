@@ -2,7 +2,7 @@
 
 #This is the runner of the pipeline.
 
-#v.0.5 - Update 2026/06/17
+#v.1.0 - Update 2026/06/25
 
 #Run gepi_ont pipeline from module 01 to module 05 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
@@ -16,7 +16,7 @@
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_05.sh path/to/manifest.tsv path/to/config.sh
+#Use: bash scripts/runner_pipeline_01_05.sh -m path/to/manifest.tsv -c path/to/config.sh
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -24,17 +24,53 @@
 
 set -euo pipefail
 
-#Check input arguments
-if [[ "$#" -ne 2 ]]; then
-    echo "[ERROR] Usage:"
-    echo "[ERROR] bash scripts/runner_pipeline_01_05.sh path/to/manifest.tsv path/to/config.sh"
-    echo "[ERROR] Please, include both the manifest file and the config file as arguments"
+#Initialize variables to avoid errors with set -u
+MANIFEST=""
+CONFIG=""
+
+#Define usage
+usage () {
+    echo "scripts/runner_pipeline_01_05.sh"
+    echo ""
+    echo "Usage: bash $0 -m <manifest.tsv> -c <config.sh>"
+    echo ""
+    echo "Description:"
+    echo "  Run Gepi-ONT modules 01 to 05 using a sample manifest and project configuration file."
+    echo ""
+    echo "Options:"
+    echo "  -m  Input manifest TSV file with columns: sample_id and bam_path"
+    echo "  -c  Project configuration file"
+    echo "  -h  Display this help message and exit"
+}
+
+#Parse command-line options
+while getopts ":m:c:h" opt; do
+    case ${opt} in
+        m ) MANIFEST="$OPTARG" ;;
+        c ) CONFIG="$OPTARG" ;;
+        h )
+            usage
+            exit 0
+            ;;
+        \? )
+            echo "[ERROR] Invalid option: -$OPTARG" >&2
+            usage
+            exit 1
+            ;;
+        : )
+            echo "[ERROR] Option -$OPTARG requires an argument." >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+#Check if required options are provided
+if [[ -z "$MANIFEST" || -z "$CONFIG" ]]; then
+    echo "[ERROR] Missing required arguments." >&2
+    usage
     exit 1
 fi
-
-#Input argument
-MANIFEST="$1"
-CONFIG="$2"
 
 #Check if the manifest file exists
 if [[ ! -f "$MANIFEST" ]]; then
@@ -75,13 +111,14 @@ echo -e "${YELLOW}"
 echo "============================================================================="
 echo "============================================================================="
 echo -e "${MAGENTA}"
-echo "      MMMM   MMMM  EEEEEEE  TTTTTTTT        OOOOOOO  NNN    NN  TTTTTTTT"
-echo "      MM MM MM MM  EE          TT           OO   OO  NN N   NN     TT   "
-echo "      MM   M   MM  EEEEE       TT    =====  OO   OO  NN  N  NN     TT   "
-echo "      MM       MM  EE          TT           OO   OO  NN   N NN     TT   "
-echo "      MM       MM  EEEEEEE     TT           OOOOOOO  NN    NNN     TT   "
+echo "      GGGGGG  EEEEEEE  PPPPPP   III          OOOOOOO  NNN    NN  TTTTTTTT"
+echo "     GG       EE       PP   PP  III          OO   OO  NN N   NN     TT   "
+echo "     GG GGGG  EEEEE    PPPPPP   III   =====  OO   OO  NN  N  NN     TT   "
+echo "     GG   GG  EE       PP       III          OO   OO  NN   N NN     TT   "
+echo "      GGGGG   EEEEEEE  PP       III          OOOOOOO  NN    NNN     TT   "
 echo -e "${YELLOW}"
-echo "A modular and reproducible bioinformatics pipeline for ONT long-read BAM data"
+echo "      Gepi-ONT: a modular pipeline for reproducible haplotype-resolved"
+echo "            genomic and epigenomic analysis of ONT long-read data"
 echo ""
 echo "============================================================================="
 echo "============================================================================="
