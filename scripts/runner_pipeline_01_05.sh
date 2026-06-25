@@ -90,6 +90,22 @@ source "$CONFIG"
 #Export config path for internal scripts
 export GEPI_ONT_CONFIG="$CONFIG"
 
+#Validate boolean configuration values
+boolean_values () {
+    local name="$1"
+    local value="$2"
+    if [[ "$value" != "true" && "$value" != "false" ]]; then
+        echo "[ERROR] ${name} must be true or false. Current value (${value}) not valid"
+        exit 1
+    fi
+}
+
+boolean_values "RUN_MODULE_01_INITIAL_QC" "$RUN_MODULE_01_INITIAL_QC"
+boolean_values "RUN_MODULE_02_FILTERING_AND_QC" "$RUN_MODULE_02_FILTERING_AND_QC"
+boolean_values "RUN_MODULE_03_BAM_COMPARISON" "$RUN_MODULE_03_BAM_COMPARISON"
+boolean_values "RUN_MODULE_04_COVERAGE_GAP" "$RUN_MODULE_04_COVERAGE_GAP"
+boolean_values "RUN_MODULE_05_MARK_DUPLICATES" "$RUN_MODULE_05_MARK_DUPLICATES"
+
 #Create execution log
 PIPELINE_EXECUTION_LOGS_DIR="${LOGS_DIR}/pipeline_executions"
 
@@ -180,99 +196,120 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     ##################################################
 
     #=============MODULE 01: QC RAW FILES=============
-    echo ""
-    echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 01] INITIAL QUALITY CONTROL FOR ${SAMPLE_ID}"
-    echo "-----------------------------------------------------------------------------"
-    echo ""
+    if [[ "$RUN_MODULE_01_INITIAL_QC" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 01] INITIAL QUALITY CONTROL FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
 
-    #Initial QC
-    conda run -n gepi_ont_qc \
-        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$BAM_PATH" -m initial
+        #Initial QC
+        conda run -n gepi_ont_qc \
+            bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$BAM_PATH" -m initial
+    else
+        echo "[SKIP] Skipping module 01: initial QC for ${SAMPLE_ID}"
+    fi
 
     #===============MODULE 02: FILTERING AND QC===============
-    echo ""
-    echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 02] FILTERING AND QC FOR ${SAMPLE_ID}"
-    echo "-----------------------------------------------------------------------------"
-    echo ""
-
-    #Filtering step
-    conda run -n bam_processing \
-        bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" -i "$BAM_PATH"
-
-    #Check if filtered BAM and index exists
     FILTERED_BAM="${FILTERED_BAM_DIR}/${SAMPLE_ID}/${SAMPLE_ID}_filtered.bam"
 
-    if [[ ! -f "$FILTERED_BAM" ]]; then
-        echo "[ERROR] Filtered BAM was not created:"
-        echo "[ERROR] ${FILTERED_BAM}"
-        exit 1
-    fi
+    if [[ "$RUN_MODULE_02_FILTERING_AND_QC" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 02] FILTERING AND QC FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
 
-    if [[ ! -f "${FILTERED_BAM}.bai" ]]; then
-        echo "[ERROR] Filtered BAM index was not created:"
-        echo "[ERROR] ${FILTERED_BAM}.bai"
-        exit 1
-    fi
+        #Filtering step
+        conda run -n bam_processing \
+            bash "${FILTERING_AND_QC_SCRIPTS_DIR}/filter_bam.sh" -i "$BAM_PATH"
 
-    #Post-filtering QC step
-    conda run -n gepi_ont_qc \
-        bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$FILTERED_BAM" -m post_filtering
+        #Check if filtered BAM and index exists
+        if [[ ! -f "$FILTERED_BAM" ]]; then
+            echo "[ERROR] Filtered BAM was not created:"
+            echo "[ERROR] ${FILTERED_BAM}"
+            exit 1
+        fi
+
+        if [[ ! -f "${FILTERED_BAM}.bai" ]]; then
+            echo "[ERROR] Filtered BAM index was not created:"
+            echo "[ERROR] ${FILTERED_BAM}.bai"
+            exit 1
+        fi
+
+        #Post-filtering QC step
+        conda run -n gepi_ont_qc \
+            bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$FILTERED_BAM" -m post_filtering
+    else
+        echo "[SKIP] Skipping module 02: filtering and QC for ${SAMPLE_ID}"
+    fi
 
     #===============MODULE 03: BAM COMPARISON ===============
-    echo ""
-    echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 03] COMPARISON OF QC BEFORE AND AFTER FILTERING FOR ${SAMPLE_ID}"
-    echo "-----------------------------------------------------------------------------"
-    echo ""
+    if [[ "$RUN_MODULE_03_BAM_COMPARISON" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 03] COMPARISON OF QC BEFORE AND AFTER FILTERING FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
 
-    conda run -n gepi_ont_qc \
-        bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" -s "$SAMPLE_ID"
-    
-    #===============MODULE 04: COVERAGE GAP===============
-    echo ""
-    echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 04] COVERAGE GAP ANALYSIS FOR ${SAMPLE_ID}"
-    echo "-----------------------------------------------------------------------------"
-    echo ""
-
-    conda run -n coverage_gap \
-        bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" -s "$SAMPLE_ID"
-    
-    #===============MODULE 05: MARK DUPLICATES===============
-    echo ""
-    echo "-----------------------------------------------------------------------------"
-    echo "[MODULE 05] MARK DUPLICATES FOR ${SAMPLE_ID}"
-    echo "-----------------------------------------------------------------------------"
-    echo ""
-
-    conda run -n mark_duplicates \
-        bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" -i "$FILTERED_BAM"
-
-    #Check if markdup BAM and index exists
-    FILTERED_SAMPLE="$(basename "$FILTERED_BAM" .bam)"
-    MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${FILTERED_SAMPLE}"
-    MARKDUP_BAM="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bam"
-    MARKDUP_BAI="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bai"
-    MARKDUP_METRICS="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup_metrics.txt"
-
-    if [[ ! -f "$MARKDUP_BAM" ]]; then
-        echo "[ERROR] MarkDuplicates BAM was not created:"
-        echo "[ERROR] ${MARKDUP_BAM}"
-        exit 1
+        conda run -n gepi_ont_qc \
+            bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" -s "$SAMPLE_ID"
+    else
+        echo "[SKIP] Skipping module 03: BAM comparison for ${SAMPLE_ID}"
     fi
 
-    if [[ ! -f "$MARKDUP_BAI" ]]; then
-        echo "[ERROR] MarkDuplicates BAM index was not created:"
-        echo "[ERROR] ${MARKDUP_BAI}"
-        exit 1
-    fi    
+    
+    #===============MODULE 04: COVERAGE GAP===============
+    if [[ "$RUN_MODULE_04_COVERAGE_GAP" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 04] COVERAGE GAP ANALYSIS FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
 
-    if [[ ! -f "$MARKDUP_METRICS" ]]; then
-        echo "[ERROR] MarkDuplicates metrics file was not created:"
-        echo "[ERROR] ${MARKDUP_METRICS}"
-        exit 1
+        conda run -n coverage_gap \
+            bash "${COVERAGE_GAP_SCRIPTS_DIR}/run_coverage_gap.sh" -s "$SAMPLE_ID"
+    else
+        echo "[SKIP] Skipping module 04: coverage gap analysis for ${SAMPLE_ID}"
+    fi
+    
+    #===============MODULE 05: MARK DUPLICATES===============
+    if [[ "$RUN_MODULE_05_MARK_DUPLICATES" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 05] MARK DUPLICATES FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
+
+        conda run -n mark_duplicates \
+            bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" -i "$FILTERED_BAM"
+
+        #Check if markdup BAM and index exists
+        FILTERED_SAMPLE="$(basename "$FILTERED_BAM" .bam)"
+        MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${FILTERED_SAMPLE}"
+        MARKDUP_BAM="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bam"
+        MARKDUP_BAI="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bai"
+        MARKDUP_METRICS="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup_metrics.txt"
+
+        if [[ ! -f "$MARKDUP_BAM" ]]; then
+            echo "[ERROR] MarkDuplicates BAM was not created:"
+            echo "[ERROR] ${MARKDUP_BAM}"
+            exit 1
+        fi
+
+        if [[ ! -f "$MARKDUP_BAI" ]]; then
+            echo "[ERROR] MarkDuplicates BAM index was not created:"
+            echo "[ERROR] ${MARKDUP_BAI}"
+            exit 1
+        fi    
+
+        if [[ ! -f "$MARKDUP_METRICS" ]]; then
+            echo "[ERROR] MarkDuplicates metrics file was not created:"
+            echo "[ERROR] ${MARKDUP_METRICS}"
+            exit 1
+        fi
+    else
+        echo "[SKIP] Skipping module 05: mark duplicates for ${SAMPLE_ID}"
     fi
 
 done
@@ -283,6 +320,8 @@ echo "==========================================================================
 echo "                             PIPELINE FINISHED"
 echo "============================================================================="
 echo ""
-echo "[INFO] Modules 01 to 05 completed for all samples in:"
+echo "[INFO] Pipeline execution finished for all samples in:"
 echo "[INFO] ${MANIFEST}"
+echo "[INFO] Modules were executed according to:"
+echo "[INFO] ${CONFIG}"
 echo ""

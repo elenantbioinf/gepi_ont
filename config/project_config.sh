@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-#Project configuration file for the gepi_ont pipeline
+#Project configuration file for the Gepi-ONT pipeline
 
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 1.1 (2026-06-09)
+#Current version: 1.2 (2026-06-25)
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
@@ -41,6 +41,15 @@ RAW_BAM_DIR="${PIPELINE_DIR}/data/raw"
 #Cluster mode: RESOURCES_DIR="/path/to/cluster/resources" - resources are located in a shared cluster directory.
 RESOURCES_DIR="${PIPELINE_DIR}/resources"
 
+#------------Module execution switches-----------
+#Set each variable to true to run the module, or false to skip it.
+
+RUN_MODULE_01_INITIAL_QC=true
+RUN_MODULE_02_FILTERING_AND_QC=true
+RUN_MODULE_03_BAM_COMPARISON=true
+RUN_MODULE_04_COVERAGE_GAP=true
+RUN_MODULE_05_MARK_DUPLICATES=true
+
 #---------------Filtering parameters-------------
 
 FILTER_MIN_MAPQ=20
@@ -50,9 +59,13 @@ FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supple
 #---------------Coverage gap thresholds-------------
 COVERAGE_GAP_THRESHOLDS=(0 5)
 
+
 ################################################
 ############## UNTOUCHABLE SETTINGS ############
 ################################################
+#      |   |   |   |   |   |   |   |   |   |
+#      V   V   V   V   V   V   V   V   V   V
+
 #Yes, untouchable.
 
 
@@ -64,8 +77,8 @@ COVERAGE_GAP_THRESHOLDS=(0 5)
 
 
 #Do not touch anything below this line without a very good reason.
-#       |   |   |   |   |  
-#       V   V   V   V   V
+#      |   |   |   |   |   |   |   |   |   |
+#      V   V   V   V   V   V   V   V   V   V
 
 
 ################################################
