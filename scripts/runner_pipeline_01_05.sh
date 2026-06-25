@@ -4,7 +4,7 @@
 
 #v.0.5 - Update 2026/06/17
 
-#Run met_ont pipeline from module 01 to module 05 using a manifest file.
+#Run gepi_ont pipeline from module 01 to module 05 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
 
 #These modules include:
@@ -52,7 +52,7 @@ fi
 source "$CONFIG"
 
 #Export config path for internal scripts
-export MET_ONT_CONFIG="$CONFIG"
+export GEPI_ONT_CONFIG="$CONFIG"
 
 #Create execution log
 PIPELINE_EXECUTION_LOGS_DIR="${LOGS_DIR}/pipeline_executions"
@@ -150,7 +150,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo ""
 
     #Initial QC
-    conda run -n met_ont_qc \
+    conda run -n gepi_ont_qc \
         bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$BAM_PATH" -m initial
 
     #===============MODULE 02: FILTERING AND QC===============
@@ -180,7 +180,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     fi
 
     #Post-filtering QC step
-    conda run -n met_ont_qc \
+    conda run -n gepi_ont_qc \
         bash "${INITIAL_QC_SCRIPTS_DIR}/run_quality_control.sh" -i "$FILTERED_BAM" -m post_filtering
 
     #===============MODULE 03: BAM COMPARISON ===============
@@ -190,7 +190,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     echo "-----------------------------------------------------------------------------"
     echo ""
 
-    conda run -n met_ont_qc \
+    conda run -n gepi_ont_qc \
         bash "${BAM_COMPARISON_SCRIPTS_DIR}/run_comparison.sh" -s "$SAMPLE_ID"
     
     #===============MODULE 04: COVERAGE GAP===============

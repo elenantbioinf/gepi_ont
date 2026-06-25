@@ -56,7 +56,7 @@ if [[ -z "$INPUT_BAM" || -z "$OUTPUT_METRICS" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 SAMPLE="$(basename "$INPUT_BAM" .bam)"
 

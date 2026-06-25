@@ -25,7 +25,7 @@ scripts/
 Scripts load the project configuration using: 
 
 ```bash
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 ```
 
 This allows scripts to use the config path exported by the runner, while keeping `config/project_config.sh` as the default for individual script execution.
@@ -35,7 +35,7 @@ This allows scripts to use the config path exported by the runner, while keeping
 The recommended execution mode is from the project root directory.
 
 ```bash
-cd path/to/met_ont/
+cd path/to/gepi_ont/
 ```
 
 If the runner is launched from outside the project root, absolute paths should be used when calling the runner, manifest and config file, and also inside the manifest for input BAM files. Internal config variables derived from `WORKDIR`, `RAW_BAM_DIR` and `RESOURCES_DIR` should not be manually edited.

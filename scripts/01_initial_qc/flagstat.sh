@@ -56,7 +56,7 @@ if [[ -z "$INPUT_BAM" || -z "$OUTPUT_METRICS" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 QC_LOGS_DIR="${QC_LOGS_DIR:-$INITIAL_QC_LOGS_DIR}"
 

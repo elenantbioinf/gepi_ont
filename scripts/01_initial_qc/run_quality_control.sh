@@ -61,7 +61,7 @@ if [[ -z "$INPUT_BAM" || -z "$QC_MODE" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 #Get sample name from BAM file
 SAMPLE="$(basename "${INPUT_BAM}" .bam)"

@@ -56,7 +56,7 @@ if [[ -z "$SAMPLE_NAME" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 #Define thresholds to run
 if [[ -n "$SELECTED_THRESHOLD" ]]; then

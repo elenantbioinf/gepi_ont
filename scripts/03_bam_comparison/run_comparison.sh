@@ -52,7 +52,7 @@ if [[ -z "$SAMPLE_NAME" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 #Output directory for comparison results
 OUTPUT_DIR="$BAM_COMPARISON_RESULTS_DIR/${SAMPLE_NAME}"

@@ -53,7 +53,7 @@ if [[ -z "$BAM_RAW" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 #Define other variables
 SAMPLE="$(basename "${BAM_RAW}" .bam)"

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-#Project configuration file for the met_ont pipeline
+#Project configuration file for the gepi_ont pipeline
 
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.

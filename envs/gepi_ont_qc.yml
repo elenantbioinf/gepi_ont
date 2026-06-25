@@ -1,4 +1,4 @@
-name: met_ont_qc
+name: gepi_ont_qc
 channels:
   - conda-forge
   - bioconda

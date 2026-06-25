@@ -50,7 +50,7 @@ if [[ -z "$INPUT_BAM" ]]; then
 fi
 
 #Load project config
-source "${MET_ONT_CONFIG:-config/project_config.sh}"
+source "${GEPI_ONT_CONFIG:-config/project_config.sh}"
 
 #Chekc if input BAM exists
 if [[ ! -f "${INPUT_BAM}" ]]; then
