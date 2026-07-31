@@ -5,12 +5,13 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 1.0 (2026-07-31)
+#Current version: 1.1 (2026-07-31)
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
 #04_coverage_gap
 #05_mark_duplicates
+#06_variant_calling
 
 ################################################
 ############# PIPELINE LOCATION ################
@@ -47,11 +48,18 @@ REFERENCE_GENOME="/DATA/ont_open_data_downloads/giab_reference/GCA_000001405.15_
 #------------Module execution switches-----------
 #Set each variable to true to run the module, or false to skip it.
 
-RUN_MODULE_01_INITIAL_QC=true
-RUN_MODULE_02_FILTERING_AND_QC=true
-RUN_MODULE_03_BAM_COMPARISON=true
-RUN_MODULE_04_COVERAGE_GAP=true
-RUN_MODULE_05_MARK_DUPLICATES=true
+RUN_MODULE_01_INITIAL_QC=false
+RUN_MODULE_02_FILTERING_AND_QC=false
+RUN_MODULE_03_BAM_COMPARISON=false
+RUN_MODULE_04_COVERAGE_GAP=false
+RUN_MODULE_05_MARK_DUPLICATES=false
+RUN_MODULE_06_VARIANT_CALLING=false
+
+#------------Variant-calling switches-----------
+
+RUN_CLAIR3=true
+RUN_DEEPVARIANT=false
+RUN_VARIANT_FILTERING=true
 
 #---------------Filtering parameters-------------
 
@@ -59,9 +67,23 @@ FILTER_MIN_MAPQ=20
 FILTER_MIN_READ_LENGTH=1000
 FILTER_EXCLUDE_FLAGS=2308 #4 + 256 + 2048 = 2308: unmapped, secondary and supplementary alignments
 
-#---------------Coverage gap thresholds-------------
+#-------------Coverage gap thresholds------------
 COVERAGE_GAP_THRESHOLDS=(0 5)
 
+#----------------Clair3 parameters---------------
+
+#Clair3 model matching the ONT chemistry and basecalling model
+CLAIR3_MODEL="${RESOURCES_DIR}/clair3_model/r1041_e82_400bps_hac_v500"
+
+#Maximum number of threads
+CLAIR3_THREADS=8
+
+#Sequencing platform: ont, hifi or ilmn
+CLAIR3_PLATFORM="ont"
+
+##Contig or region to analyze; leave empty to analyze all supported contigs.
+#In this case, the region to analyze is chr22
+CLAIR3_CONTIG="chr22"
 
 ################################################
 ############## UNTOUCHABLE SETTINGS ############
@@ -166,3 +188,27 @@ MARK_DUPLICATES_SCRIPTS_DIR="${SCRIPTS_DIR}/05_mark_duplicates"
 #Results and logs
 MARK_DUPLICATES_RESULTS_DIR="${RESULTS_DIR}/05_mark_duplicates"
 MARK_DUPLICATES_LOGS_DIR="${LOGS_DIR}/05_mark_duplicates"
+
+
+#################################################
+########## MODULE 06: VARIANT CALLING ###########
+#################################################
+
+#Scripts
+VARIANT_CALLING_SCRIPTS_DIR="${SCRIPTS_DIR}/06_variant_calling"
+
+#Base results and logs
+VARIANT_CALLING_RESULTS_DIR="${RESULTS_DIR}/06_variant_calling"
+VARIANT_CALLING_LOGS_DIR="${LOGS_DIR}/06_variant_calling"
+
+#Clair3 results and logs
+CLAIR3_RESULTS_DIR="${VARIANT_CALLING_RESULTS_DIR}/variant_calling/clair3"
+CLAIR3_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/clair3"
+
+#DeepVariant results and logs
+DEEPVARIANT_RESULTS_DIR="${VARIANT_CALLING_RESULTS_DIR}/variant_calling/deepvariant"
+DEEPVARIANT_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/deepvariant"
+
+#PASS variant filtering results and logs
+VARIANT_FILTERING_RESULTS_DIR="${VARIANT_CALLING_RESULTS_DIR}/variant_filtering"
+VARIANT_FILTERING_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/variant_filtering"
