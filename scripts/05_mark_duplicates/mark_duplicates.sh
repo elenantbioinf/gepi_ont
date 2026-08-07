@@ -96,7 +96,7 @@ echo "###########################################"
 echo "Duplicates marked successfully"
 echo "Output saved to $MARKDUP_BAM"
 echo "Metrics saved to $MARKDUP_METRICS"
-echo "Index created: $MARKDUP_BAM.bai"
+echo "Index created: ${MARKDUP_BAM%.bam}.bai"
 echo "Log saved to $LOGS_FILE"
 echo "###########################################"
 
