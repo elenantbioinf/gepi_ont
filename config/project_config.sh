@@ -84,6 +84,24 @@ CLAIR3_PLATFORM="ont"
 ##Contig or region to analyze; leave empty to analyze all supported contigs.
 CLAIR3_CONTIG=""
 
+#----------------Deepvariant parameters---------------
+#Apptainer image containing DeepVariant
+DEEPVARIANT_CONTAINER="${RESOURCES_DIR}/containers/deepvariant_1.10.0.sif"
+
+#DeepVariant model
+DEEPVARIANT_MODEL_TYPE="ONT_R104"
+
+#Threads for the deepvariant analysis
+DEEPVARIANT_THREADS=8
+
+#Deepvariant region to analyse;
+#leave empty to analyze all supported contigs, or specify a region using "chr22"
+DEEPVARIANT_REGIONS=""
+
+#Deepvariant output optiones: boolean values
+DEEPVARIANT_OUTPUT_GVCF=true
+DEEPVARIANT_VCF_STATS_REPORT=true
+
 
 ################################################
 ############## UNTOUCHABLE SETTINGS ############
