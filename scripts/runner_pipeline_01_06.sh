@@ -2,9 +2,9 @@
 
 #This is the runner of the pipeline.
 
-#v.1.0 - Update 2026/06/25
+#version: 2026/08/07
 
-#Run gepi_ont pipeline from module 01 to module 05 using a manifest file.
+#Run gepi_ont pipeline from module 01 to module 06 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
 
 #These modules include:
@@ -13,10 +13,11 @@
 # - 03_bam_comparison
 # - 04_coverage_gap
 # - 05_mark_duplicates
+# - 06_variant_calling
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_05.sh -m path/to/manifest.tsv -c path/to/config.sh
+#Use: bash scripts/runner_pipeline_01_06.sh -m path/to/manifest.tsv -c path/to/config.sh
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -30,12 +31,12 @@ CONFIG=""
 
 #Define usage
 usage () {
-    echo "scripts/runner_pipeline_01_05.sh"
+    echo "scripts/runner_pipeline_01_06.sh"
     echo ""
     echo "Usage: bash $0 -m <manifest.tsv> -c <config.sh>"
     echo ""
     echo "Description:"
-    echo "  Run Gepi-ONT modules 01 to 05 using a sample manifest and project configuration file."
+    echo "  Run Gepi-ONT modules 01 to 06 using a sample manifest and project configuration file."
     echo ""
     echo "Options:"
     echo "  -m  Input manifest TSV file with columns: sample_id and bam_path"
@@ -105,6 +106,10 @@ boolean_values "RUN_MODULE_02_FILTERING_AND_QC" "$RUN_MODULE_02_FILTERING_AND_QC
 boolean_values "RUN_MODULE_03_BAM_COMPARISON" "$RUN_MODULE_03_BAM_COMPARISON"
 boolean_values "RUN_MODULE_04_COVERAGE_GAP" "$RUN_MODULE_04_COVERAGE_GAP"
 boolean_values "RUN_MODULE_05_MARK_DUPLICATES" "$RUN_MODULE_05_MARK_DUPLICATES"
+boolean_values "RUN_MODULE_06_VARIANT_CALLING" "$RUN_MODULE_06_VARIANT_CALLING"
+boolean_values "RUN_CLAIR3" "$RUN_CLAIR3"
+boolean_values "RUN_DEEPVARIANT" "$RUN_DEEPVARIANT"
+boolean_values "RUN_VARIANT_FILTERING" "$RUN_VARIANT_FILTERING"
 
 #Create execution log
 PIPELINE_EXECUTION_LOGS_DIR="${LOGS_DIR}/pipeline_executions"
@@ -274,6 +279,14 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
     fi
     
     #===============MODULE 05: MARK DUPLICATES===============
+
+    #Define MarkDuplicates output paths
+    FILTERED_SAMPLE="$(basename "$FILTERED_BAM" .bam)"
+    MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${FILTERED_SAMPLE}"
+    MARKDUP_BAM="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bam"
+    MARKDUP_BAI="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bai"
+    MARKDUP_METRICS="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup_metrics.txt"
+
     if [[ "$RUN_MODULE_05_MARK_DUPLICATES" == true ]]; then
         echo ""
         echo "-----------------------------------------------------------------------------"
@@ -284,13 +297,7 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
         conda run -n mark_duplicates \
             bash "${MARK_DUPLICATES_SCRIPTS_DIR}/mark_duplicates.sh" -i "$FILTERED_BAM"
 
-        #Check if markdup BAM and index exists
-        FILTERED_SAMPLE="$(basename "$FILTERED_BAM" .bam)"
-        MARKDUP_DIR="${MARK_DUPLICATES_RESULTS_DIR}/${FILTERED_SAMPLE}"
-        MARKDUP_BAM="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bam"
-        MARKDUP_BAI="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup.bai"
-        MARKDUP_METRICS="${MARKDUP_DIR}/${FILTERED_SAMPLE}_markdup_metrics.txt"
-
+        #Check if MarkDuplicates outputs exist
         if [[ ! -f "$MARKDUP_BAM" ]]; then
             echo "[ERROR] MarkDuplicates BAM was not created:"
             echo "[ERROR] ${MARKDUP_BAM}"
@@ -310,6 +317,70 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
         fi
     else
         echo "[SKIP] Skipping module 05: mark duplicates for ${SAMPLE_ID}"
+    fi
+
+    #===============MODULE 06: VARIANT CALLING===============
+
+    if [[ "$RUN_MODULE_06_VARIANT_CALLING" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 06] VARIANT CALLING FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
+
+        #Check requiered inputs for variant calling
+        if [[ ! -f "$MARKDUP_BAM" ]]; then
+            echo "[ERROR] MarkDuplicates BAM not found for ${SAMPLE_ID}:"
+            echo "[ERROR] ${MARKDUP_BAM}"
+            exit 1
+        fi
+        if [[ ! -f "$MARKDUP_BAI" ]]; then
+            echo "[ERROR] MarkDuplicates BAM index not found for ${SAMPLE_ID}:"
+            echo "[ERROR] ${MARKDUP_BAI}"
+            exit 1
+        fi 
+
+        VARIANT_SAMPLE="$(basename "$MARKDUP_BAM" .bam)"
+
+        #Clair3
+        if [[ "$RUN_CLAIR3" == true ]]; then
+            
+            conda run -n variant_calling \
+                bash "${VARIANT_CALLING_SCRIPTS_DIR}/variant_calling_clair3.sh" -i "$MARKDUP_BAM"
+            
+            #Filter after clair3
+            if [[ "$RUN_VARIANT_FILTERING" == true ]]; then
+
+                CLAIR3_VCF="${CLAIR3_RESULTS_DIR}/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_clair3.vcf.gz"
+                
+                conda run -n variant_calling \
+                    bash "${VARIANT_CALLING_SCRIPTS_DIR}/variant_filtering.sh" -i "$CLAIR3_VCF" -c clair3
+            fi
+
+        else
+            echo "[SKIP] Skipping Clair3 variant calling for ${SAMPLE_ID}"
+        fi
+
+        #DeepVariant
+        if [[ "$RUN_DEEPVARIANT" == true ]]; then
+            
+            conda run -n variant_calling \
+                bash "${VARIANT_CALLING_SCRIPTS_DIR}/variant_calling_deepvariant.sh" -i "$MARKDUP_BAM"
+
+            #Filter after deepvariant
+            if [[ "$RUN_VARIANT_FILTERING" == true ]]; then
+                DEEPVARIANT_VCF="${DEEPVARIANT_RESULTS_DIR}/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_deepvariant.vcf.gz"
+                
+                conda run -n variant_calling \
+                    bash "${VARIANT_CALLING_SCRIPTS_DIR}/variant_filtering.sh" -i "$DEEPVARIANT_VCF" -c deepvariant
+            fi
+
+        else
+            echo "[SKIP] Skipping DeepVariant variant calling for ${SAMPLE_ID}"
+        fi
+
+    else
+        echo "[SKIP] Skipping module 06: variant calling for ${SAMPLE_ID}"
     fi
 
 done

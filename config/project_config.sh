@@ -5,7 +5,7 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 1.3 (2026-08-01)
+#Current version: 2026-08-07
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
