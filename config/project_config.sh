@@ -230,3 +230,15 @@ DEEPVARIANT_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/deepvariant"
 #PASS variant filtering results and logs
 VARIANT_FILTERING_RESULTS_DIR="${VARIANT_CALLING_RESULTS_DIR}/variant_filtering"
 VARIANT_FILTERING_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/variant_filtering"
+
+
+#################################################
+########## MODULE 07: VARIANT PHASING ###########
+#################################################
+
+#Scripts
+VARIANT_PHASING_SCRIPTS_DIR="${SCRIPTS_DIR}/07_variant_phasing"
+
+#Results and logs
+VARIANT_PHASING_RESULTS_DIR="${RESULTS_DIR}/07_variant_phasing"
+VARIANT_PHASING_LOGS_DIR="${LOGS_DIR}/07_variant_phasing"

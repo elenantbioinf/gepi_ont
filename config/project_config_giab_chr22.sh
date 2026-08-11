@@ -5,13 +5,14 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 2026-08-07
+#Current version: 2026-08-11
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
 #04_coverage_gap
 #05_mark_duplicates
 #06_variant_calling
+#07_variant_phasing
 
 ################################################
 ############# PIPELINE LOCATION ################
@@ -54,6 +55,7 @@ RUN_MODULE_03_BAM_COMPARISON=false
 RUN_MODULE_04_COVERAGE_GAP=false
 RUN_MODULE_05_MARK_DUPLICATES=false
 RUN_MODULE_06_VARIANT_CALLING=true
+RUN_MODULE_07_VARIANT_PHASING=true
 
 #------------Variant-calling switches-----------
 
@@ -231,3 +233,21 @@ DEEPVARIANT_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/deepvariant"
 #PASS variant filtering results and logs
 VARIANT_FILTERING_RESULTS_DIR="${VARIANT_CALLING_RESULTS_DIR}/variant_filtering"
 VARIANT_FILTERING_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/variant_filtering"
+
+
+#################################################
+########## MODULE 07: VARIANT PHASING ###########
+#################################################
+
+#Scripts
+VARIANT_PHASING_SCRIPTS_DIR="${SCRIPTS_DIR}/07_variant_phasing"
+
+#Base results and logs
+VARIANT_PHASING_RESULTS_DIR="${RESULTS_DIR}/07_variant_phasing"
+VARIANT_PHASING_LOGS_DIR="${LOGS_DIR}/07_variant_phasing"
+
+#Phasing results and logs
+PHASED_RESULTS_DIR="${VARIANT_PHASING_RESULTS_DIR}/variant_phasing"
+
+#Haplotagging results and logs
+HAPLOTAGGED_RESULTS_DIR="${VARIANT_PHASING_RESULTS_DIR}/haplotagging"
