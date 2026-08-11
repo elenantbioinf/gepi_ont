@@ -31,7 +31,7 @@ It defines:
 
 ### `project_config_giab_chr22.sh`
 
-Configuration profile used to validate modules 01 to 05 with the GIAB chr22 dataset.
+Configuration profile used to validate modules 01 to 06 with the GIAB chr22 dataset.
 
 The validation uses:
 

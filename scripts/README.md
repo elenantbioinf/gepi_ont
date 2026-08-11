@@ -17,7 +17,7 @@ scripts/
 ├── 08_annotation/
 ├── 09_methylation_extraction/
 ├── 10_methylation_visualization/
-└── runner_pipeline_01_05.sh
+└── runner_pipeline_01_06.sh
 ```
 
 ## Configuration
@@ -42,10 +42,10 @@ If the runner is launched from outside the project root, absolute paths should b
 
 ## Current runner
 
-The current runner executes modules 01 to 05 using a manifest file and a config file:
+The current runner executes modules 01 to 06 using a manifest file and a config file:
 
 ```bash
-bash scripts/runner_pipeline_01_05.sh -m path/to/manifest.tsv -c path/to/config.sh
+bash scripts/runner_pipeline_01_06.sh -m path/to/manifest.tsv -c path/to/config.sh
 ```
 
 The manifest must be tab-separated and `sample_id` must match the BAM filename without .bam.

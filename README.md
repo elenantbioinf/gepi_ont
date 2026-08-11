@@ -20,9 +20,9 @@ scripts/
 ├── 08_annotation/ 
 ├── 09_methylation_extraction/ 
 ├── 10_methylation_visualization/ 
-└── runner_pipeline_01_05.sh
+└── runner_pipeline_01_06.sh
 ```
-Currently, the global runner is implemented for modules 01 to 05.
+Currently, the global runner is implemented for modules 01 to 06.
 
 ## Current workflow
 
@@ -34,6 +34,7 @@ The current runner executes the following modules:
 - 03_bam_comparison: comparison of QC metrics before and after filtering
 - 04_coverage_gap: coverage gap detection
 - 05_mark_duplicates: duplicate marking with Picard MarkDuplicates
+- 06_variant_calling: small-variant calling with Clair3 and DeepVariant, followed by PASS filtering
 ```
 
 ## Configuration
@@ -49,7 +50,7 @@ This file contains user-editable settings such as the working directory, raw BAM
 The recommended execution mode is from the project root directory: 
 
 ```bash
-bash scripts/runner_pipeline_01_05.sh -m path/to/manifest.tsv -c path/to/project_config.sh
+bash scripts/runner_pipeline_01_06.sh -m path/to/manifest.tsv -c path/to/project_config.sh
 ```
 
 The runner requieres: 
@@ -61,7 +62,7 @@ You can also see usage with: `-h`
 
 ## Configurable module execution
 
-Modules 01 to 05 can be enabled or skipped from `project_config.sh` using boolean switches:
+Modules 01 to 06 can be enabled or skipped from `project_config.sh` using boolean switches:
 
 ```text
 #------------Module execution switches-----------
@@ -72,6 +73,7 @@ RUN_MODULE_02_FILTERING_AND_QC=true
 RUN_MODULE_03_BAM_COMPARISON=true
 RUN_MODULE_04_COVERAGE_GAP=true
 RUN_MODULE_05_MARK_DUPLICATES=true
+RUN_MODULE_06_VARIANT_CALLING=true
 ```
 
 Only exact values `true` and `false` are accepted.
