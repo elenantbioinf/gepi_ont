@@ -5,7 +5,7 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 2026-08-11
+#Current version: 2026-08-12
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
@@ -54,14 +54,14 @@ RUN_MODULE_02_FILTERING_AND_QC=false
 RUN_MODULE_03_BAM_COMPARISON=false
 RUN_MODULE_04_COVERAGE_GAP=false
 RUN_MODULE_05_MARK_DUPLICATES=false
-RUN_MODULE_06_VARIANT_CALLING=true
+RUN_MODULE_06_VARIANT_CALLING=false
 RUN_MODULE_07_VARIANT_PHASING=true
 
 #------------Variant-calling switches-----------
 
 RUN_CLAIR3=true
-RUN_DEEPVARIANT=true
-RUN_VARIANT_FILTERING=true
+RUN_DEEPVARIANT=false
+RUN_VARIANT_FILTERING=false
 
 #---------------Filtering parameters-------------
 

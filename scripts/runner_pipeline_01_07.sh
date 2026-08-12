@@ -2,9 +2,9 @@
 
 #This is the runner of the pipeline.
 
-#version: 2026/08/07
+#version: 2026/08/12
 
-#Run gepi_ont pipeline from module 01 to module 06 using a manifest file.
+#Run gepi_ont pipeline from module 01 to module 07 using a manifest file.
 #Each module is executed in its corresponding Conda environment.
 
 #These modules include:
@@ -14,10 +14,11 @@
 # - 04_coverage_gap
 # - 05_mark_duplicates
 # - 06_variant_calling
+# - 07_variant_phasing
 
 #Manifest: sample_id<\t>bam_path
 
-#Use: bash scripts/runner_pipeline_01_06.sh -m path/to/manifest.tsv -c path/to/config.sh
+#Use: bash scripts/runner_pipeline_01_07.sh -m path/to/manifest.tsv -c path/to/config.sh
 
 ##################################################
 ################## INTRODUCTION ##################
@@ -31,12 +32,12 @@ CONFIG=""
 
 #Define usage
 usage () {
-    echo "scripts/runner_pipeline_01_06.sh"
+    echo "scripts/runner_pipeline_01_07.sh"
     echo ""
     echo "Usage: bash $0 -m <manifest.tsv> -c <config.sh>"
     echo ""
     echo "Description:"
-    echo "  Run Gepi-ONT modules 01 to 06 using a sample manifest and project configuration file."
+    echo "  Run Gepi-ONT modules 01 to 07 using a sample manifest and project configuration file."
     echo ""
     echo "Options:"
     echo "  -m  Input manifest TSV file with columns: sample_id and bam_path"
@@ -110,6 +111,7 @@ boolean_values "RUN_MODULE_06_VARIANT_CALLING" "$RUN_MODULE_06_VARIANT_CALLING"
 boolean_values "RUN_CLAIR3" "$RUN_CLAIR3"
 boolean_values "RUN_DEEPVARIANT" "$RUN_DEEPVARIANT"
 boolean_values "RUN_VARIANT_FILTERING" "$RUN_VARIANT_FILTERING"
+boolean_values "RUN_MODULE_07_VARIANT_PHASING" "$RUN_MODULE_07_VARIANT_PHASING"
 
 #Create execution log
 PIPELINE_EXECUTION_LOGS_DIR="${LOGS_DIR}/pipeline_executions"
@@ -381,6 +383,103 @@ tail -n +2 "$MANIFEST" | while IFS=$'\t' read -r SAMPLE_ID BAM_PATH; do
 
     else
         echo "[SKIP] Skipping module 06: variant calling for ${SAMPLE_ID}"
+    fi
+    
+    #===============MODULE 07: VARIANT PHASING===============
+
+    if [[ "$RUN_MODULE_07_VARIANT_PHASING" == true ]]; then
+        echo ""
+        echo "-----------------------------------------------------------------------------"
+        echo "[MODULE 07] VARIANT PHASING FOR ${SAMPLE_ID}"
+        echo "-----------------------------------------------------------------------------"
+        echo ""
+
+        #Define variant sample name
+        VARIANT_SAMPLE="$(basename "$MARKDUP_BAM" .bam)"
+
+        #Check requiered inputs for variant phasing
+        if [[ ! -f "$MARKDUP_BAM" ]]; then
+            echo "[ERROR] MarkDuplicates BAM not found for ${SAMPLE_ID}:"
+            echo "[ERROR] ${MARKDUP_BAM}"
+            exit 1
+        fi
+        if [[ ! -f "$MARKDUP_BAI" ]]; then
+            echo "[ERROR] MarkDuplicates BAM index not found for ${SAMPLE_ID}:"
+            echo "[ERROR] ${MARKDUP_BAI}"
+            exit 1
+        fi 
+
+        #Clair 3 phasing and haplotagging
+        if [[ "$RUN_CLAIR3" == true ]]; then
+
+            #Define and check Clair3 VCF and index paths
+            CLAIR3_PASS_VCF="${VARIANT_FILTERING_RESULTS_DIR}/clair3/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_clair3_pass.vcf.gz"
+            CLAIR3_PASS_VCF_TBI="${CLAIR3_PASS_VCF}.tbi"   
+
+            if [[ ! -f "$CLAIR3_PASS_VCF" || ! -f "$CLAIR3_PASS_VCF_TBI" ]]; then
+                echo "[ERROR] Clair3 VCF or index not found for ${SAMPLE_ID}:"
+                echo "[ERROR] ${CLAIR3_PASS_VCF}"
+                echo "[ERROR] ${CLAIR3_PASS_VCF_TBI}"
+                exit 1
+            fi
+
+            #Run variant phasing
+            conda run -n variant_phasing \
+                bash "${VARIANT_PHASING_SCRIPTS_DIR}/variant_phasing_whatshap.sh" \
+                    -i "$MARKDUP_BAM" \
+                    -v "$CLAIR3_PASS_VCF" \
+                    -c clair3
+
+            #Define phased VCF and index paths
+            CLAIR3_PHASED_VCF="${PHASED_RESULTS_DIR}/clair3/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_clair3_phased.vcf.gz"
+
+            #Run haplotagging
+            conda run -n variant_phasing \
+                bash "${VARIANT_PHASING_SCRIPTS_DIR}/variant_haplotag_whatshap.sh" \
+                    -i "$MARKDUP_BAM" \
+                    -v "$CLAIR3_PHASED_VCF" \
+                    -c clair3   
+
+        else
+            echo "[SKIP] Skipping variant phasing and haplotagging for ${SAMPLE_ID}_clair3"
+        fi
+
+        #DeepVariant phasing and haplotagging
+        if [[ "$RUN_DEEPVARIANT" == true ]]; then
+
+            #Define and check DeepVariant VCF and index paths
+            DEEPVARIANT_PASS_VCF="${VARIANT_FILTERING_RESULTS_DIR}/deepvariant/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_deepvariant_pass.vcf.gz"
+            DEEPVARIANT_PASS_VCF_TBI="${DEEPVARIANT_PASS_VCF}.tbi"
+
+            if [[ ! -f "$DEEPVARIANT_PASS_VCF" || ! -f "$DEEPVARIANT_PASS_VCF_TBI" ]]; then
+                echo "[ERROR] DeepVariant VCF or index not found for ${SAMPLE_ID}:"
+                echo "[ERROR] ${DEEPVARIANT_PASS_VCF}"
+                echo "[ERROR] ${DEEPVARIANT_PASS_VCF_TBI}"
+                exit 1
+            fi
+
+            #Run variant phasing
+            conda run -n variant_phasing \
+                bash "${VARIANT_PHASING_SCRIPTS_DIR}/variant_phasing_whatshap.sh" \
+                    -i "$MARKDUP_BAM" \
+                    -v "$DEEPVARIANT_PASS_VCF" \
+                    -c deepvariant
+        
+            #Define and check phased VCF and index paths
+            DEEPVARIANT_PHASED_VCF="${PHASED_RESULTS_DIR}/deepvariant/${VARIANT_SAMPLE}/${VARIANT_SAMPLE}_deepvariant_phased.vcf.gz"
+            
+            #Run haplotagging
+            conda run -n variant_phasing \
+                bash "${VARIANT_PHASING_SCRIPTS_DIR}/variant_haplotag_whatshap.sh" \
+                    -i "$MARKDUP_BAM" \
+                    -v "$DEEPVARIANT_PHASED_VCF" \
+                    -c deepvariant
+        else
+            echo "[SKIP] Skipping  variant phasing and haplotagging for ${SAMPLE_ID}_deepvariant"
+        fi
+
+    else
+        echo "[SKIP] Skipping module 07: variant phasing for ${SAMPLE_ID}"
     fi
 
 done
