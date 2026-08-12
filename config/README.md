@@ -6,18 +6,36 @@ This directory contains configuration files used to parameterize the analysis.
 
 Paths to large input files and external resources are environment-specific. Before running the pipeline on another system, review the user-editable section of the selected configuration file and update:
 
-```text
-WORKDIR
-RAW_BAM_DIR
-RESOURCES_DIR
-REFERENCE_GENOME
-```
+`WORKDIR`: In this directory will be stored the results, logs and data/processed when the pipeline be executed.
+`RAW_BAM_DIR`: Directory containing the original BAM files. They will not be modified during execution.
+`RESOURCES_DIR`: Directory containing the resources required by the pipeline. By default, it will be located inside `PIPELINE_DIR`. 
+`REFERENCE_GENOME`: Path to thereference genome FASTA file. By default, it will be located inside `RESOURCES_DIR`.
 
 You can also configure other settings, such as which modules to execute, BAM filtering parameters, or coverage-gap thresholds.
 
+Modules can be enabled or skipped independently with boolean values:
+
+```bash
+RUN_MODULE_01_INITIAL_QC=true
+RUN_MODULE_02_FILTERING_AND_QC=true
+RUN_MODULE_03_BAM_COMPARISON=true
+RUN_MODULE_04_COVERAGE_GAP=true
+RUN_MODULE_05_MARK_DUPLICATES=true
+RUN_MODULE_06_VARIANT_CALLING=true
+RUN_MODULE_07_VARIANT_PHASING=true
+```
+
+Variant callers and PASS filtering are controlled separately:
+
+```bash
+RUN_CLAIR3=true
+RUN_DEEPVARIANT=true
+RUN_VARIANT_FILTERING=true
+```
+
 ### `project_config.sh`
 
-Example of configuration file for the Gepi-ONT pipeline.
+Example of configuration file for the Gepi-ONT pipeline (current version: Modules 01 to 07; 2026-08-12)
 
 It defines:
 
@@ -31,7 +49,7 @@ It defines:
 
 ### `project_config_giab_chr22.sh`
 
-Configuration profile used to validate modules 01 to 06 with the GIAB chr22 dataset.
+Configuration profile used to validate modules 01 to 07 with the GIAB chr22 dataset.
 
 The validation uses:
 
@@ -52,7 +70,7 @@ The manifest contains two tab-separated columns:
 sample_id	bam_path
 ```
 
-Each `sample_id` must match the corresponding BAM filename without the .bam extension.
+Each `sample_id` must match the corresponding BAM filename without the `.bam` extension.
 
 ### `manifest.tsv`
 

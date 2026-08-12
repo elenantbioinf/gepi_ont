@@ -20,9 +20,9 @@ scripts/
 ├── 08_annotation/ 
 ├── 09_methylation_extraction/ 
 ├── 10_methylation_visualization/ 
-└── runner_pipeline_01_06.sh
+└── runner_pipeline_01_07.sh
 ```
-Currently, the global runner is implemented for modules 01 to 06.
+Currently, the global runner is implemented for modules 01 to 07.
 
 ## Current workflow
 
@@ -35,13 +35,17 @@ The current runner executes the following modules:
 - 04_coverage_gap: coverage gap detection
 - 05_mark_duplicates: duplicate marking with Picard MarkDuplicates
 - 06_variant_calling: small-variant calling with Clair3 and DeepVariant, followed by PASS filtering
+- 07_variant_phasing: read-based variant phasing and BAM haplotagging with WhatsHap.
 ```
+
 
 ## Configuration
 
 Project-specific paths and parameters are defined in:
 
+```text
 config/project_config.sh
+```
 
 This file contains user-editable settings such as the working directory, raw BAM directory, resources directory, filtering parameters, coverage gap thresholds and module execution switches.
 
@@ -53,18 +57,20 @@ The recommended execution mode is from the project root directory:
 bash scripts/runner_pipeline_01_06.sh -m path/to/manifest.tsv -c path/to/project_config.sh
 ```
 
-The runner requieres: 
+The runner requieres:
+
 ```text
 -m  input manifest TSV file
 -c  project configuration file
 ```
+
 You can also see usage with: `-h`
 
 ## Configurable module execution
 
-Modules 01 to 06 can be enabled or skipped from `project_config.sh` using boolean switches:
+Modules 01 to 07 can be enabled or skipped from `project_config.sh` using boolean switches:
 
-```text
+```bash
 #------------Module execution switches-----------
 #Set each variable to true to run the module, or false to skip it.
 
@@ -74,9 +80,22 @@ RUN_MODULE_03_BAM_COMPARISON=true
 RUN_MODULE_04_COVERAGE_GAP=true
 RUN_MODULE_05_MARK_DUPLICATES=true
 RUN_MODULE_06_VARIANT_CALLING=true
+RUN_MODULE_07_VARIANT_PHASING=true
+```
+
+Variant calling and phasing can be configured by caller:
+
+```bash
+#------------Variant-calling switches-----------
+
+RUN_CLAIR3=true
+RUN_DEEPVARIANT=true
+RUN_VARIANT_FILTERING=true
 ```
 
 Only exact values `true` and `false` are accepted.
+When module 07 is executed independently, the corresponding MarkDuplicates BAM and PASS-filtered VCF files must already exist.
+
 
 ## Output and logs
 
