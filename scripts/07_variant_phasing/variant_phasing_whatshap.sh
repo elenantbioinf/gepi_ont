@@ -123,7 +123,7 @@ if [[ ! -s "${REFERENCE_GENOME}.fai" ]]; then
 fi
 
 #Sample name
-SAMPLE_NAME=$(basename "$INPUT_VCF" _${CALLER_NAME}_pass.vcf.gz)
+SAMPLE_NAME="$(basename "$INPUT_VCF" _${CALLER_NAME}_pass.vcf.gz)"
 
 #Outputs and logs
 OUTPUT_DIR="${PHASED_RESULTS_DIR}/${CALLER_NAME}/${SAMPLE_NAME}"
