@@ -5,13 +5,14 @@
 #This file defines project-specific variables and settings that are used throughout the pipeline. 
 #It should be sourced at the beginning of each script.
 
-#Current version: 2026-08-07
+#Current version: 2026-08-12
 #01_initial_qc
 #02_filtering_and_qc
 #03_bam_comparison
 #04_coverage_gap
 #05_mark_duplicates
 #06_variant_calling
+#07_variant_phasing
 
 ################################################
 ############# PIPELINE LOCATION ################
@@ -48,12 +49,13 @@ REFERENCE_GENOME="${RESOURCES_DIR}/ref_genome/GRCh38.primary_assembly.genome.fa"
 #------------Module execution switches-----------
 #Set each variable to true to run the module, or false to skip it.
 
-RUN_MODULE_01_INITIAL_QC=true
-RUN_MODULE_02_FILTERING_AND_QC=true
-RUN_MODULE_03_BAM_COMPARISON=true
-RUN_MODULE_04_COVERAGE_GAP=true
-RUN_MODULE_05_MARK_DUPLICATES=true
+RUN_MODULE_01_INITIAL_QC=false
+RUN_MODULE_02_FILTERING_AND_QC=false
+RUN_MODULE_03_BAM_COMPARISON=false
+RUN_MODULE_04_COVERAGE_GAP=false
+RUN_MODULE_05_MARK_DUPLICATES=false
 RUN_MODULE_06_VARIANT_CALLING=false
+RUN_MODULE_07_VARIANT_PHASING=false
 
 #------------Variant-calling switches-----------
 
@@ -239,6 +241,12 @@ VARIANT_FILTERING_LOGS_DIR="${VARIANT_CALLING_LOGS_DIR}/variant_filtering"
 #Scripts
 VARIANT_PHASING_SCRIPTS_DIR="${SCRIPTS_DIR}/07_variant_phasing"
 
-#Results and logs
+#Base results and logs
 VARIANT_PHASING_RESULTS_DIR="${RESULTS_DIR}/07_variant_phasing"
 VARIANT_PHASING_LOGS_DIR="${LOGS_DIR}/07_variant_phasing"
+
+#Phasing results and logs
+PHASED_RESULTS_DIR="${VARIANT_PHASING_RESULTS_DIR}/variant_phasing"
+
+#Haplotagging results and logs
+HAPLOTAGGED_RESULTS_DIR="${VARIANT_PHASING_RESULTS_DIR}/haplotagging"
